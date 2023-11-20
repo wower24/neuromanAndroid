@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomLayout">
+        <attr name="layoutLabel_text" format="string"/>
+        <attr name="layoutButton1_text" format="string" />
+        <attr name="layoutButton2_text" format="string" />
+    </declare-styleable>
+</resources>

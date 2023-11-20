@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!--FIRST COLUMN BEGINS-->
+    <LinearLayout
+        android:id="@+id/firstColumn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="80dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <!--BADANY BEGINS-->
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="64dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Badany: "
+                android:textSize="35dp" />
+
+            <EditText
+                android:id="@+id/badany"
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:background="@drawable/edit_text_background"
+                tools:layout_editor_absoluteX="140dp"
+                tools:layout_editor_absoluteY="100dp" />
+        </LinearLayout>
+        <!--BADANY ENDS-->
+
+        <include
+            android:id="@+id/operatorLayout"
+            layout="@layout/text_dropdown_buttons" />
+
+        <CheckBox
+            android:id="@+id/wykonanoCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="64dp"
+            android:text="Wykonano test CSR-R"
+            android:textSize="35dp" />
+
+        <TextView
+            android:layout_width="300dp"
+            android:layout_marginStart="40dp"
+            android:layout_height="wrap_content"
+            android:text="Scenariusze"
+            android:textSize="35dp"
+            android:textAlignment="center"/>
+
+        <ListView
+            android:layout_marginStart="40dp"
+            android:id="@+id/scenariuszeListView"
+            android:background="@drawable/edit_text_background"
+            android:layout_width="300dp"
+            android:layout_height="190dp" />
+
+        <Button
+            android:id="@+id/startButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start scenariusza"
+            android:layout_marginStart="110dp"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="60dp">
+
+            <Button
+                android:id="@+id/kalibracjaButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="Kalibracja"/>
+
+            <Button
+                android:id="@+id/koniecButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Koniec Badania"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+    <!--FIRST COLUMN ENDS-->
+
+    <!--SECOND COLUMN BEGINS-->
+    <LinearLayout
+        android:id="@+id/secondColumn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="80dp"
+        android:layout_marginLeft="30dp"
+        app:layout_constraintStart_toEndOf="@+id/firstColumn"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <include
+            android:id="@+id/profilLayout"
+            layout="@layout/text_dropdown_buttons"
+            app:layout_constraintBottom_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <include
+            android:id="@+id/czasKlikaniaLayout"
+            layout="@layout/increase_decrease_by_constant"
+            app:layout_constraintBottom_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <include
+            android:id="@+id/czasPrzerwyLayout"
+            layout="@layout/increase_decrease_by_constant"
+            app:layout_constraintBottom_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <include
+            android:id="@+id/wielkoscKursoraLayout"
+            layout="@layout/increase_decrease_by_constant"
+            app:layout_constraintBottom_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/secondColumn">
+
+        <include
+            android:id="@+id/upperLeftCornerLayout"
+            layout="@layout/increase_decrease_by_constant_x_y"
+            app:layout_constraintBottom_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <include
+            android:id="@+id/lowerRightCornerLayout"
+            layout="@layout/increase_decrease_by_constant_x_y"
+            app:layout_constraintBottom_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </LinearLayout>
+    <!--SECOND COLUMN ENDS-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

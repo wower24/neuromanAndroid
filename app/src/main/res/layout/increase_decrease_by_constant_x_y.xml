@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:id="@+id/idcxyLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="65dp">
+
+        <TextView
+            android:id="@+id/layoutLabel"
+            android:layout_width="310dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textSize="35dp"
+            android:text="Text"/>
+
+        <TextView
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textSize="35dp"
+            android:text="X"/>
+
+        <TextView
+            android:id="@+id/numberXText"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:background="@drawable/edit_text_background"
+            android:textSize="35dp" />
+
+        <Button
+            android:id="@+id/increaseXButton"
+            android:background="@drawable/edit_text_background"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="2dp"
+            android:text="+"
+            android:textSize="18dp"/>
+
+        <Button
+            android:id="@+id/decreaseXButton"
+            android:background="@drawable/edit_text_background"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="20dp"
+            android:text="-"
+            android:textSize="18dp"/>
+
+        <TextView
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textSize="35dp"
+            android:text="Y"/>
+
+        <TextView
+            android:id="@+id/numberYText"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:background="@drawable/edit_text_background"
+            android:textSize="35dp" />
+
+        <Button
+            android:id="@+id/increaseYButton"
+            android:background="@drawable/edit_text_background"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="2dp"
+            android:text="+"
+            android:textSize="18dp"/>
+
+        <Button
+            android:id="@+id/decreaseYButton"
+            android:background="@drawable/edit_text_background"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="-"
+            android:textSize="18dp"/>
+    </LinearLayout>
+</layout>

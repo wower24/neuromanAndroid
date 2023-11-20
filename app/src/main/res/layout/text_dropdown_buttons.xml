@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:id="@+id/tdbLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="64dp">
+
+        <TextView
+            android:id="@+id/layoutLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textSize="35dp"
+            android:text="Text"/>
+
+        <!--DROP DOWN MENU BASED ON A LIST OF OPERATORS HERE -->
+        <Spinner
+            android:id="@+id/layoutSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_marginEnd="10dp"/>
+        <!--DROP DOWN MENU BASED ON A LIST OF OPERATORS HERE -->
+
+        <Button
+            android:id="@+id/layoutButton1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="Nowy" />
+
+        <Button
+            android:id="@+id/layoutButton2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Usuń" />
+    </LinearLayout>
+</layout>
