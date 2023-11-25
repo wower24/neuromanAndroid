@@ -2,4 +2,6 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="selectedColor">#B3ECFF</color>
+    <color name="neuromanBlue">#17708b</color>
 </resources>

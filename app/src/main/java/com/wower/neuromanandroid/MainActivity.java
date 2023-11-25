@@ -2,282 +2,270 @@ package com.wower.neuromanandroid;
 
 import androidx.annotation.ArrayRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.EditText;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
 
     String[] scenariuszeArray = {"MOCA", "test9p"};
-    int czasKlikaniaValue = 1100;
+    AtomicInteger czasKlikaniaValue = new AtomicInteger(1100);
     int czasKlikaniaIncrement = 100;
-    int czasPrzerwyValue = 500;
+    AtomicInteger czasPrzerwyValue = new AtomicInteger(500);
     int czasPrzerwyIncrement = 100;
-    int wielkoscKursoraValue = 60;
+    AtomicInteger wielkoscKursoraValue = new AtomicInteger(60);
     int wielkoscKursoraIncrement = 5;
     int cornerMin = 0;
     int cornerMax = 100;
     int cornerIncrement = 10;
-    int upperLeftCornerXValue = cornerMin;
-    int upperLeftCornerYValue = cornerMin;
-    int lowerRightCornerXValue = cornerMax;
-    int lowerRightCornerYValue = cornerMax;
-
-    private Spinner operatorSpinner;
-    private Spinner profilSpinner;
-    private ArrayAdapter<String> operatorAdapter;
-    private ArrayAdapter<String> profilAdapter;
+    AtomicInteger upperLeftCornerXValue = new AtomicInteger(cornerMin);
+    AtomicInteger upperLeftCornerYValue = new AtomicInteger(cornerMin);
+    AtomicInteger lowerRightCornerXValue = new AtomicInteger(cornerMax);
+    AtomicInteger lowerRightCornerYValue = new AtomicInteger(cornerMax);
+    int selectedPosition = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
-       //OPERATOR
-       View operatorLayout = findViewById(R.id.operatorLayout);
-       TextView operatorLabel = operatorLayout.findViewById(R.id.layoutLabel);
-       operatorLabel.setText("Operator: ");
-       operatorSpinner = operatorLayout.findViewById(R.id.layoutSpinner);
-       operatorAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
-       operatorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-       operatorSpinner.setAdapter(operatorAdapter);
-       operatorAdapter.add("Adam");
-       operatorAdapter.add("Ola");
-       operatorAdapter.notifyDataSetChanged();
-       operatorSpinner.setSelection(0); // Set the default selection to the first item
-       Button operatorButton1 = operatorLayout.findViewById(R.id.layoutButton1);
-       operatorButton1.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-               showInputDialog(operatorAdapter, operatorSpinner);
-           }
-       });
-       Button operatorButton2 = operatorLayout.findViewById(R.id.layoutButton2);
-       operatorButton2.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-               deleteSelectedItem(operatorAdapter, operatorSpinner);
-           }
-       });
+        setupOperatorSpinner();
+        setupProfilSpinner();
+        setupScenariosListViewAndCheckbox();
+        setupCzasKlikaniaLayout();
+        setupCzasPrzerwyLayout();
+        setupWielkoscKursoraLayout();
+        setupUpperLeftCornerLayout();
+        setupLowerRightCornerLayout();
+    }
 
-       //PROFIL
+    private void setupOperatorSpinner() {
+        View operatorLayout = findViewById(R.id.operatorLayout);
+        TextView label = operatorLayout.findViewById(R.id.layoutLabel);
+        label.setText("Operator: ");
+        Spinner operatorSpinner = operatorLayout.findViewById(R.id.layoutSpinner);
+        ArrayAdapter<String> operatorAdapter = setupSpinner(operatorSpinner, R.array.operator_items);
+        operatorAdapter.add("Adam");
+        operatorAdapter.add("Ola");
+        operatorAdapter.notifyDataSetChanged();
+        operatorSpinner.setSelection(0);
+
+        setupSpinnerButtons(findViewById(R.id.operatorLayout), operatorAdapter, operatorSpinner);
+    }
+
+    private void setupProfilSpinner() {
         View profilLayout = findViewById(R.id.profilLayout);
-        TextView profilLabel = profilLayout.findViewById(R.id.layoutLabel);
-        profilLabel.setText("Profil: ");
-        profilSpinner = profilLayout.findViewById(R.id.layoutSpinner);
-        profilAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
-        profilAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        profilSpinner.setAdapter(profilAdapter);
+        TextView label = profilLayout.findViewById(R.id.layoutLabel);
+        label.setText("Profil: ");
+        Spinner profilSpinner = profilLayout.findViewById(R.id.layoutSpinner);
+        ArrayAdapter<String> profilAdapter = setupSpinner(profilSpinner, R.array.profil_items);
         profilAdapter.add("Domyślny");
         profilAdapter.add("Lewy-Szary");
         profilAdapter.add("Prawy");
-        profilAdapter.notifyDataSetChanged();;
+        profilAdapter.notifyDataSetChanged();
         profilSpinner.setSelection(0);
-        Button profilButton1 = profilLayout.findViewById(R.id.layoutButton1);
-        profilButton1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showInputDialog(profilAdapter, profilSpinner);
-            }
-        });
-        Button profilButton2 = profilLayout.findViewById(R.id.layoutButton2);
-        profilButton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteSelectedItem(profilAdapter, profilSpinner);
-            }
-        });
 
-        View czasKlikaniaLayout = findViewById(R.id.czasKlikaniaLayout);
-        TextView czasKlikaniaLabel = czasKlikaniaLayout.findViewById(R.id.layoutLabel);
-        czasKlikaniaLabel.setText("Czas klikania (ms) ");
-        TextView czasKlikaniaNumber = czasKlikaniaLayout.findViewById(R.id.numberText);
-        czasKlikaniaNumber.setText(String.valueOf(czasKlikaniaValue));
-        Button czasKlikaniaIncreaseButton = czasKlikaniaLayout.findViewById(R.id.increaseButton);
-        czasKlikaniaIncreaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                increaseValueAndSetText(czasKlikaniaNumber, czasKlikaniaValue, czasKlikaniaIncrement);
-                czasKlikaniaValue += czasKlikaniaIncrement;
-            }
-        });
-        Button czasKlikaniaDecreaseButton = czasKlikaniaLayout.findViewById(R.id.decreaseButton);
-        czasKlikaniaDecreaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(czasKlikaniaValue >= czasKlikaniaIncrement) {
-                    decreaseValueAndSetText(czasKlikaniaNumber, czasKlikaniaValue, czasKlikaniaIncrement);
-                    czasKlikaniaValue -= czasKlikaniaIncrement;
-                }
-            }
-        });
-
-        View czasPrzerwyLayout = findViewById(R.id.czasPrzerwyLayout);
-        TextView czasPrzerwyLabel = czasPrzerwyLayout.findViewById(R.id.layoutLabel);
-        czasPrzerwyLabel.setText("Max czas przerwy (ms) ");
-        TextView czasPrzerwyNumber = czasPrzerwyLayout.findViewById(R.id.numberText);
-        czasPrzerwyNumber.setText(String.valueOf(czasPrzerwyValue));
-        Button czasPrzerwyIncreaseButton = czasPrzerwyLayout.findViewById(R.id.increaseButton);
-        czasPrzerwyIncreaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                increaseValueAndSetText(czasPrzerwyNumber, czasPrzerwyValue, czasPrzerwyIncrement);
-                czasPrzerwyValue += czasPrzerwyIncrement;
-            }
-        });
-        Button czasPrzerwyDecreaseButton = czasPrzerwyLayout.findViewById(R.id.decreaseButton);
-        czasPrzerwyDecreaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(czasPrzerwyValue >= czasPrzerwyIncrement) {
-                    decreaseValueAndSetText(czasPrzerwyNumber, czasPrzerwyValue, czasPrzerwyIncrement);
-                    czasPrzerwyValue -= czasPrzerwyIncrement;
-                }
-            }
-        });
-
-        View wielkoscKursoraLayout = findViewById(R.id.wielkoscKursoraLayout);
-        TextView wielkoscKursoraLabel = wielkoscKursoraLayout.findViewById(R.id.layoutLabel);
-        wielkoscKursoraLabel.setText("Wielkość kursora (px) ");
-        TextView wielkoscKursoraNumber = wielkoscKursoraLayout.findViewById(R.id.numberText);
-        wielkoscKursoraNumber.setText(String.valueOf(wielkoscKursoraValue));
-        Button wielkoscKursoraIncreaseButton = wielkoscKursoraLayout.findViewById(R.id.increaseButton);
-        wielkoscKursoraIncreaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                increaseValueAndSetText(wielkoscKursoraNumber, wielkoscKursoraValue, wielkoscKursoraIncrement);
-                wielkoscKursoraValue += wielkoscKursoraIncrement;
-            }
-        });
-        Button wielkoscKursoraDecreaseButton = wielkoscKursoraLayout.findViewById(R.id.decreaseButton);
-        wielkoscKursoraDecreaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(wielkoscKursoraValue >= wielkoscKursoraIncrement) {
-                    decreaseValueAndSetText(wielkoscKursoraNumber, wielkoscKursoraValue, wielkoscKursoraIncrement);
-                    wielkoscKursoraValue -= wielkoscKursoraIncrement;
-                }
-            }
-        });
-
-        View upperLeftCornerLayout = findViewById(R.id.upperLeftCornerLayout);
-        TextView upperLeftCornerLabel = upperLeftCornerLayout.findViewById(R.id.layoutLabel);
-        upperLeftCornerLabel.setText("Lewy górny róg (%) ");
-        TextView upperLeftCornerNumberXText = upperLeftCornerLayout.findViewById(R.id.numberXText);
-        upperLeftCornerNumberXText.setText(String.valueOf(cornerMin));
-        Button upperLeftCornerIncreaseXButton = upperLeftCornerLayout.findViewById(R.id.increaseXButton);
-        upperLeftCornerIncreaseXButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(upperLeftCornerXValue < cornerMax) {
-                    increaseValueAndSetText(upperLeftCornerNumberXText, upperLeftCornerXValue, cornerIncrement);
-                    upperLeftCornerXValue += cornerIncrement;
-                }
-            }
-        });
-        Button upperLeftCornerDecreaseXButton = upperLeftCornerLayout.findViewById(R.id.decreaseXButton);
-        upperLeftCornerDecreaseXButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(upperLeftCornerXValue > cornerMin) {
-                    decreaseValueAndSetText(upperLeftCornerNumberXText, upperLeftCornerXValue, cornerIncrement);
-                    upperLeftCornerXValue -= cornerIncrement;
-                }
-            }
-        });
-        TextView upperLeftCornerNumberYText = upperLeftCornerLayout.findViewById(R.id.numberYText);
-        upperLeftCornerNumberYText.setText(String.valueOf(cornerMin));
-        Button upperLeftCornerIncreaseYButton = upperLeftCornerLayout.findViewById(R.id.increaseYButton);
-        upperLeftCornerIncreaseYButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(upperLeftCornerYValue < cornerMax) {
-                    increaseValueAndSetText(upperLeftCornerNumberYText, upperLeftCornerYValue, cornerIncrement);
-                    upperLeftCornerYValue += cornerIncrement;
-                }
-            }
-        });
-        Button upperLeftCornerDecreaseYButton = upperLeftCornerLayout.findViewById(R.id.decreaseYButton);
-        upperLeftCornerDecreaseYButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(upperLeftCornerYValue > cornerMin) {
-                    decreaseValueAndSetText(upperLeftCornerNumberYText, upperLeftCornerYValue, cornerIncrement);
-                    upperLeftCornerYValue -= cornerIncrement;
-                }
-            }
-        });
-
-        View lowerRightCornerLayout = findViewById(R.id.lowerRightCornerLayout);
-        TextView lowerRightCornerLabel = lowerRightCornerLayout.findViewById(R.id.layoutLabel);
-        lowerRightCornerLabel.setText("Prawy dolny róg (%) ");
-        TextView lowerRightCornerNumberXText = lowerRightCornerLayout.findViewById(R.id.numberXText);
-        lowerRightCornerNumberXText.setText(String.valueOf(cornerMax));
-        Button lowerRightCornerIncreaseXButton = lowerRightCornerLayout.findViewById(R.id.increaseXButton);
-        lowerRightCornerIncreaseXButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(lowerRightCornerXValue < cornerMax) {
-                    increaseValueAndSetText(lowerRightCornerNumberXText, lowerRightCornerXValue, cornerIncrement);
-                    lowerRightCornerXValue += cornerIncrement;
-                }
-            }
-        });
-        Button lowerRightCornerDecreaseXButton = lowerRightCornerLayout.findViewById(R.id.decreaseXButton);
-        lowerRightCornerDecreaseXButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(lowerRightCornerXValue > cornerMin) {
-                    decreaseValueAndSetText(lowerRightCornerNumberXText, lowerRightCornerXValue, cornerIncrement);
-                    lowerRightCornerXValue -= cornerIncrement;
-                }
-            }
-        });
-        TextView lowerRightCornerNumberYText = lowerRightCornerLayout.findViewById(R.id.numberYText);
-        lowerRightCornerNumberYText.setText(String.valueOf(cornerMax));
-        Button lowerRightCornerIncreaseYButton = lowerRightCornerLayout.findViewById(R.id.increaseYButton);
-        lowerRightCornerIncreaseYButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(lowerRightCornerYValue < cornerMax) {
-                    increaseValueAndSetText(lowerRightCornerNumberYText, lowerRightCornerYValue, cornerIncrement);
-                    lowerRightCornerYValue += cornerIncrement;
-                }
-            }
-        });
-        Button lowerRightCornerDecreaseYButton = lowerRightCornerLayout.findViewById(R.id.decreaseYButton);
-        lowerRightCornerDecreaseYButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(lowerRightCornerYValue > cornerMin) {
-                    decreaseValueAndSetText(lowerRightCornerNumberYText, lowerRightCornerYValue, cornerIncrement);
-                    lowerRightCornerYValue -= cornerIncrement;
-                }
-            }
-        });
-
-        ArrayAdapter scenariuszeAdapter = new ArrayAdapter<String>(this, R.layout.listview, scenariuszeArray);
-        ListView scenariuszeListView = (ListView) findViewById(R.id.scenariuszeListView);
-        scenariuszeListView.setAdapter(scenariuszeAdapter);
-
+        setupSpinnerButtons(findViewById(R.id.profilLayout), profilAdapter, profilSpinner);
     }
 
-    private void increaseValueAndSetText(TextView textView, int value, int increment) {
-        value += increment;
+    private ArrayAdapter<String> setupSpinner(Spinner spinner, @ArrayRes int itemsArrayId) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        return adapter;
+    }
+
+    private void setupSpinnerButtons(View layout, final ArrayAdapter<String> adapter, final Spinner spinner) {
+        Button button1 = layout.findViewById(R.id.layoutButton1);
+        Button button2 = layout.findViewById(R.id.layoutButton2);
+
+        button1.setOnClickListener(v -> showInputDialog(adapter, spinner));
+
+        button2.setOnClickListener(v -> deleteSelectedItem(adapter, spinner));
+    }
+
+    private void setupScenariosListViewAndCheckbox() {
+        String selectedScenario[] = {null};
+        CheckBox wykonanoCheckBox = findViewById(R.id.wykonanoCheckBox);
+        ArrayAdapter scenariuszeAdapter = new ArrayAdapter<String>(this, R.layout.listview, scenariuszeArray);
+        ListView scenariuszeListView = findViewById(R.id.scenariuszeListView);
+        scenariuszeListView.setAdapter(scenariuszeAdapter);
+        scenariuszeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (selectedPosition != -1) {
+                    View previousView = scenariuszeListView.getChildAt(selectedPosition - scenariuszeListView.getFirstVisiblePosition());
+                    if (previousView != null) {
+                        previousView.setBackgroundColor(ContextCompat.getColor(MainActivity.this, android.R.color.white));
+                    }
+                }
+
+                // Set the background color for the clicked item
+                view.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.selectedColor));
+
+                // Update the selected position
+                selectedPosition = position;
+                selectedScenario[0] = (String)parent.getItemAtPosition(selectedPosition);
+            }
+        });
+        Button startScenarioButton = findViewById(R.id.startButton);
+        startScenarioButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(wykonanoCheckBox.isChecked()) {
+                    if(!selectedScenario.equals(null)) {
+                        startScenario(selectedScenario[0]);
+                    }
+                }
+                else {
+                    showCheckboxWarning();
+                }
+            }
+        });
+    }
+
+    private void startScenario(String scenarioName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Starting " + scenarioName + " scenario...")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User clicked OK, do nothing or handle it as needed
+                    }
+                });
+        // Create and show the dialog
+        builder.create().show();
+    }
+
+    private void showCheckboxWarning() {
+        // Display a warning dialog when the checkbox is not checked
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Please check the checkbox.")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User clicked OK, do nothing or handle it as needed
+                    }
+                });
+        // Create and show the dialog
+        builder.create().show();
+    }
+
+    private void setupCzasKlikaniaLayout() {
+        setupValueLayout(
+                R.id.czasKlikaniaLayout,
+                "Czas klikania (ms) ",
+                czasKlikaniaValue,
+                czasKlikaniaIncrement
+        );
+    }
+
+    private void setupCzasPrzerwyLayout() {
+        setupValueLayout(
+                R.id.czasPrzerwyLayout,
+                "Max czas przerwy (ms) ",
+                czasPrzerwyValue,
+                czasPrzerwyIncrement
+        );
+    }
+
+    private void setupWielkoscKursoraLayout() {
+        setupValueLayout(
+                R.id.wielkoscKursoraLayout,
+                "Wielkość kursora (px) ",
+                wielkoscKursoraValue,
+                wielkoscKursoraIncrement
+        );
+    }
+
+    private void setupUpperLeftCornerLayout() {
+        setupCornerLayout(
+                R.id.upperLeftCornerLayout,
+                "Lewy górny róg (%) ",
+                upperLeftCornerXValue,
+                upperLeftCornerYValue
+        );
+    }
+
+    private void setupLowerRightCornerLayout() {
+        setupCornerLayout(
+                R.id.lowerRightCornerLayout,
+                "Prawy dolny róg (%) ",
+                lowerRightCornerXValue,
+                lowerRightCornerYValue
+        );
+    }
+
+    private void setupValueLayout(int layoutId, String labelText, AtomicInteger value, int increment) {
+        View layout = findViewById(layoutId);
+        TextView label = layout.findViewById(R.id.layoutLabel);
+        label.setText(labelText);
+        TextView textView = layout.findViewById(R.id.numberText);
+        textView.setText(String.valueOf(value));
+
+        Button increaseButton = layout.findViewById(R.id.increaseButton);
+        Button decreaseButton = layout.findViewById(R.id.decreaseButton);
+
+        setupClickListener(value, increment, textView, increaseButton, decreaseButton);
+    }
+
+    private void setupCornerLayout(int layoutId, String labelText, AtomicInteger valueX, AtomicInteger valueY) {
+        View layout = findViewById(layoutId);
+        TextView label = layout.findViewById(R.id.layoutLabel);
+        label.setText(labelText);
+
+        TextView textViewX = layout.findViewById(R.id.numberXText);
+        TextView textViewY = layout.findViewById(R.id.numberYText);
+        textViewX.setText(String.valueOf(valueX));
+        textViewY.setText(String.valueOf(valueY));
+
+        Button increaseXButton = layout.findViewById(R.id.increaseXButton);
+        Button decreaseXButton = layout.findViewById(R.id.decreaseXButton);
+        Button increaseYButton = layout.findViewById(R.id.increaseYButton);
+        Button decreaseYButton = layout.findViewById(R.id.decreaseYButton);
+
+        setupClickListener(valueX, cornerIncrement, textViewX, increaseXButton, decreaseXButton);
+        setupClickListener(valueY, cornerIncrement, textViewY, increaseYButton, decreaseYButton);
+    }
+
+    private void setupClickListener(AtomicInteger value, int increment, TextView textView, Button increaseButton, Button decreaseButton) {
+        increaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                increaseValueAndSetText(textView, value, increment);
+            }
+        });
+
+        decreaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (value.get() >= increment) {
+                    decreaseValueAndSetText(textView, value, increment);
+                }
+            }
+        });
+    }
+
+    private void increaseValueAndSetText(TextView textView, AtomicInteger value, int increment) {
+        value.addAndGet(increment);
         textView.setText(String.valueOf(value));
     }
 
-    private void decreaseValueAndSetText(TextView textView, int value, int increment) {
-            value -= increment;
-            textView.setText(String.valueOf(value));
+    private void decreaseValueAndSetText(TextView textView, AtomicInteger value, int increment) {
+        value.addAndGet(-increment);
+        textView.setText(String.valueOf(value));
     }
 
     private void showInputDialog(final ArrayAdapter<String> adapter, final Spinner spinner) {
