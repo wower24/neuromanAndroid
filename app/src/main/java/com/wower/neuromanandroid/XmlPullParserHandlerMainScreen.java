@@ -11,15 +11,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class XmlPullParserHandler {
+public class XmlPullParserHandlerMainScreen {
     List<String> operatorNames = new ArrayList<>();
     List<Profile> profiles = new ArrayList<>();
     Profile profile;
     String text;
-
-    public List<String> getOperatorNames() {
-        return operatorNames;
-    }
 
     public Map<String, List<?>> parse(InputStream inputStream) {
 
@@ -81,13 +77,5 @@ public class XmlPullParserHandler {
         result.put("profiles", profiles);
 
         return result;
-    }
-
-    public List<Profile> getProfiles() {
-        return profiles;
-    }
-
-    public Profile getProfile() {
-        return profile;
     }
 }

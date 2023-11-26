@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         Map<String, List<?>> parsedLists;
 
         try {
-            XmlPullParserHandler parser = new XmlPullParserHandler();
+            XmlPullParserHandlerMainScreen parser = new XmlPullParserHandlerMainScreen();
             InputStream inputStream = getAssets().open("neuroman.xml");
 
             parsedLists = parser.parse(inputStream);
