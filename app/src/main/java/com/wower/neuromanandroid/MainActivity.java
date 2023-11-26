@@ -1,6 +1,5 @@
 package com.wower.neuromanandroid;
 
-import androidx.annotation.ArrayRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -17,25 +16,26 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
-
     String[] scenariuszeArray = {"MOCA", "test9p"};
     AtomicInteger czasKlikaniaValue = new AtomicInteger(1100);
     int czasKlikaniaIncrement = 100;
     AtomicInteger czasPrzerwyValue = new AtomicInteger(500);
     int czasPrzerwyIncrement = 100;
-    AtomicInteger wielkoscKursoraValue = new AtomicInteger(60);
+    AtomicInteger wielkoscKursoraValue = new AtomicInteger(55);
     int wielkoscKursoraIncrement = 5;
-    int cornerMin = 0;
-    int cornerMax = 100;
     int cornerIncrement = 10;
-    AtomicInteger upperLeftCornerXValue = new AtomicInteger(cornerMin);
-    AtomicInteger upperLeftCornerYValue = new AtomicInteger(cornerMin);
-    AtomicInteger lowerRightCornerXValue = new AtomicInteger(cornerMax);
-    AtomicInteger lowerRightCornerYValue = new AtomicInteger(cornerMax);
+    AtomicInteger minX = new AtomicInteger(0);
+    AtomicInteger minY = new AtomicInteger(0);
+    AtomicInteger maxX = new AtomicInteger(100);
+    AtomicInteger maxY = new AtomicInteger(100);
     int selectedPosition = -1;
 
     @Override
@@ -43,8 +43,31 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setupOperatorSpinner();
-        setupProfilSpinner();
+        Map<String, List<?>> parsedLists;
+
+        try {
+            XmlPullParserHandler parser = new XmlPullParserHandler();
+            InputStream inputStream = getAssets().open("neuroman.xml");
+
+            parsedLists = parser.parse(inputStream);
+
+            List<Profile> profiles = (List<Profile>)parsedLists.get("profiles");
+            List<String> profileNames = new ArrayList<>();
+
+            for(Profile profile: profiles) {
+                profileNames.add(profile.name);
+            }
+
+            ArrayAdapter<String> operatorAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, (List<String>)parsedLists.get("operatorNames"));
+            ArrayAdapter<String> profilAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, profileNames);
+
+            setupOperatorSpinner(operatorAdapter);
+            setupProfilSpinner(profilAdapter, profiles);
+
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
         setupScenariosListViewAndCheckbox();
         setupCzasKlikaniaLayout();
         setupCzasPrzerwyLayout();
@@ -53,40 +76,67 @@ public class MainActivity extends AppCompatActivity {
         setupLowerRightCornerLayout();
     }
 
-    private void setupOperatorSpinner() {
+    private void setupOperatorSpinner(ArrayAdapter<String> operatorAdapter) {
         View operatorLayout = findViewById(R.id.operatorLayout);
         TextView label = operatorLayout.findViewById(R.id.layoutLabel);
         label.setText("Operator: ");
         Spinner operatorSpinner = operatorLayout.findViewById(R.id.layoutSpinner);
-        ArrayAdapter<String> operatorAdapter = setupSpinner(operatorSpinner, R.array.operator_items);
-        operatorAdapter.add("Adam");
-        operatorAdapter.add("Ola");
-        operatorAdapter.notifyDataSetChanged();
-        operatorSpinner.setSelection(0);
-
+        operatorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        operatorSpinner.setAdapter(operatorAdapter);
         setupSpinnerButtons(findViewById(R.id.operatorLayout), operatorAdapter, operatorSpinner);
     }
 
-    private void setupProfilSpinner() {
+    private void setupProfilSpinner(ArrayAdapter<String> profilAdapter, List<Profile> profiles) {
         View profilLayout = findViewById(R.id.profilLayout);
         TextView label = profilLayout.findViewById(R.id.layoutLabel);
         label.setText("Profil: ");
         Spinner profilSpinner = profilLayout.findViewById(R.id.layoutSpinner);
-        ArrayAdapter<String> profilAdapter = setupSpinner(profilSpinner, R.array.profil_items);
-        profilAdapter.add("Domyślny");
-        profilAdapter.add("Lewy-Szary");
-        profilAdapter.add("Prawy");
-        profilAdapter.notifyDataSetChanged();
-        profilSpinner.setSelection(0);
-
+        profilAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        profilSpinner.setAdapter(profilAdapter);
         setupSpinnerButtons(findViewById(R.id.profilLayout), profilAdapter, profilSpinner);
+
+        profilSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Profile selectedProfile = profiles.get(position);
+                updateValues(selectedProfile);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
-    private ArrayAdapter<String> setupSpinner(Spinner spinner, @ArrayRes int itemsArrayId) {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        return adapter;
+    void updateValues(Profile selectedProfile) {
+        czasKlikaniaValue.set(selectedProfile.getDuration());
+        czasPrzerwyValue.set(selectedProfile.getPatience());
+        wielkoscKursoraValue.set(selectedProfile.getRadius());
+        minX.set(selectedProfile.getMinX());
+        minY.set(selectedProfile.getMinY());
+        maxX.set(selectedProfile.getMaxX());
+        maxY.set(selectedProfile.getMaxY());
+
+        updateValueLayout(R.id.czasKlikaniaLayout, czasKlikaniaValue);
+        updateValueLayout(R.id.czasPrzerwyLayout, czasPrzerwyValue);
+        updateValueLayout(R.id.wielkoscKursoraLayout, wielkoscKursoraValue);
+        updateXYValueLayout(R.id.upperLeftCornerLayout, minX, minY);
+        updateXYValueLayout(R.id.lowerRightCornerLayout, maxX, maxY);
+    }
+
+    private void updateValueLayout(int layoutId, AtomicInteger value) {
+        View layout = findViewById(layoutId);
+        TextView textView = layout.findViewById(R.id.numberText);
+        textView.setText(String.valueOf(value));
+    }
+
+    private void updateXYValueLayout(int layoutId, AtomicInteger valueX, AtomicInteger valueY) {
+        View layout = findViewById(layoutId);
+        TextView textViewX = layout.findViewById(R.id.numberXText);
+        textViewX.setText(String.valueOf(valueX));
+        TextView textViewY = layout.findViewById(R.id.numberYText);
+        textViewY.setText(String.valueOf(valueY));
     }
 
     private void setupSpinnerButtons(View layout, final ArrayAdapter<String> adapter, final Spinner spinner) {
@@ -194,8 +244,8 @@ public class MainActivity extends AppCompatActivity {
         setupCornerLayout(
                 R.id.upperLeftCornerLayout,
                 "Lewy górny róg (%) ",
-                upperLeftCornerXValue,
-                upperLeftCornerYValue
+                minX,
+                minY
         );
     }
 
@@ -203,8 +253,8 @@ public class MainActivity extends AppCompatActivity {
         setupCornerLayout(
                 R.id.lowerRightCornerLayout,
                 "Prawy dolny róg (%) ",
-                lowerRightCornerXValue,
-                lowerRightCornerYValue
+                maxX,
+                maxY
         );
     }
 

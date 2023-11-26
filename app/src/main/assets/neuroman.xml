@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<applicationParams>
+    <operator>Adam</operator>
+    <operator>Ola</operator>
+    <operator>OperatorTestMW</operator>
+    <profile>
+        <duration>1100</duration>
+        <maxx>100</maxx>
+        <maxy>100</maxy>
+        <minx>0</minx>
+        <miny>0</miny>
+        <name>domyślny</name>
+        <patience>500</patience>
+        <radius>55</radius>
+    </profile>
+    <profile>
+        <duration>1200</duration>
+        <maxx>60</maxx>
+        <maxy>80</maxy>
+        <minx>0</minx>
+        <miny>20</miny>
+        <name>lewy-szary</name>
+        <patience>500</patience>
+        <radius>50</radius>
+    </profile>
+    <profile>
+        <duration>1200</duration>
+        <maxx>100</maxx>
+        <maxy>90</maxy>
+        <minx>40</minx>
+        <miny>30</miny>
+        <name>prawy</name>
+        <patience>500</patience>
+        <radius>50</radius>
+    </profile>
+</applicationParams>
