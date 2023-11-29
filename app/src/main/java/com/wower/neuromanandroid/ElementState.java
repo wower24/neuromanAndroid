@@ -1,5 +1,7 @@
 package com.wower.neuromanandroid;
 
+import java.util.List;
+
 public class ElementState {
     String stateID;
     int locX;
@@ -10,9 +12,9 @@ public class ElementState {
     String originalSource;
     String fgcolor;
     int clickOnEnd;
-    int autoCLick;
+    int autoClick;
     int duration;
-    StateAction action;
+    List<ElementAction> actions;
 
     public ElementState() {}
 
@@ -58,12 +60,16 @@ public class ElementState {
         this.clickOnEnd = clickOnEnd;
     }
 
-    public void setAutoCLick(int autoCLick) {
-        this.autoCLick = autoCLick;
+    public void setAutoClick(int autoCLick) {
+        this.autoClick = autoCLick;
     }
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public void setActions(List<ElementAction> actions) {
+        this.actions = actions;
     }
 
     public String getStateID() {
@@ -99,11 +105,15 @@ public class ElementState {
     }
 
     public int getAutoCLick() {
-        return autoCLick;
+        return autoClick;
     }
 
     public int getDuration() {
         return duration;
+    }
+
+    public List<ElementAction> getActions() {
+        return actions;
     }
 
     public void reset() {

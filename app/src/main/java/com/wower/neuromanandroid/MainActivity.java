@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         setupWielkoscKursoraLayout();
         setupUpperLeftCornerLayout();
         setupLowerRightCornerLayout();
+        setupFinishButton();
     }
 
     private void setupOperatorSpinner(ArrayAdapter<String> operatorAdapter) {
@@ -151,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupScenariosListViewAndCheckbox() {
         String selectedScenario[] = {null};
         CheckBox wykonanoCheckBox = findViewById(R.id.wykonanoCheckBox);
+        EditText badanyName = findViewById(R.id.badany);
         ArrayAdapter scenariuszeAdapter = new ArrayAdapter<String>(this, R.layout.listview, scenariuszeArray);
         ListView scenariuszeListView = findViewById(R.id.scenariuszeListView);
         scenariuszeListView.setAdapter(scenariuszeAdapter);
@@ -176,13 +178,16 @@ public class MainActivity extends AppCompatActivity {
         startScenarioButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(wykonanoCheckBox.isChecked()) {
-                    if(!selectedScenario.equals(null)) {
-                        startScenario(selectedScenario[0]);
-                    }
+                if(!wykonanoCheckBox.isChecked()) {
+                    showCheckboxWarning("Zaznacz wykonanie testu CSR-R!");
+
+                } else if(badanyName.getText().toString().equals("")) {
+                    showCheckboxWarning("Najpierw określ badanego!");
+                } else if(selectedScenario[0] == null) {
+                    showCheckboxWarning("Najpierw wybierz scenariusz!");
                 }
                 else {
-                    showCheckboxWarning();
+                    startScenario(selectedScenario[0]);
                 }
             }
         });
@@ -198,12 +203,21 @@ public class MainActivity extends AppCompatActivity {
                 });
         // Create and show the dialog
         builder.create().show();
+        try {
+            XmlPullParserHandlerTest9p parser = new XmlPullParserHandlerTest9p();
+            InputStream inputStream = getAssets().open("test9p.xml");
+
+            Scenario scen = parser.parse(inputStream);
+
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void showCheckboxWarning() {
+    private void showCheckboxWarning(String message) {
         // Display a warning dialog when the checkbox is not checked
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Please check the checkbox.")
+        builder.setMessage(message)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // User clicked OK, do nothing or handle it as needed
@@ -348,5 +362,17 @@ public class MainActivity extends AppCompatActivity {
                 spinner.setSelection(adapter.getCount() - 1);
             }
         }
+    }
+
+    private void setupFinishButton() {
+        Button koniecButton = findViewById(R.id.koniecButton);
+
+        koniecButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Close the current activity
+                finish();
+            }
+        });
     }
 }

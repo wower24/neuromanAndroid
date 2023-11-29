@@ -1,11 +1,11 @@
 package com.wower.neuromanandroid;
 
-public class StateAction {
+public class ElementAction {
     String elementID;
     String stateID;
-    public StateAction() {}
+    public ElementAction() {}
 
-    public StateAction(String element, String state) {
+    public ElementAction(String element, String state) {
         super();
         this.elementID = element;
         this.stateID = state;
