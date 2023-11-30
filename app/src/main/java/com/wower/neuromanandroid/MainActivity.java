@@ -5,6 +5,7 @@ import androidx.core.content.ContextCompat;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -203,15 +204,8 @@ public class MainActivity extends AppCompatActivity {
                 });
         // Create and show the dialog
         builder.create().show();
-        try {
-            XmlPullParserHandlerTest9p parser = new XmlPullParserHandlerTest9p();
-            InputStream inputStream = getAssets().open("test9p.xml");
-
-            Scenario scen = parser.parse(inputStream);
-
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
+        Intent intent = new Intent(this, BoardActivity.class);
+        startActivity(intent);
     }
 
     private void showCheckboxWarning(String message) {

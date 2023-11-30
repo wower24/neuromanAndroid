@@ -5,13 +5,13 @@
         <item>Adam</item>
         <item>Ola</item>
         <item>Marta</item>
-            <!-- Add more items for the operator Spinner -->
+        <!-- Add more items for the operator Spinner -->
     </string-array>
 
     <string-array name="profil_items">
         <item>Domyślny</item>
         <item>Lewy-Szary</item>
         <item>Prawy</item>
-            <!-- Add more items for the profil Spinner -->
+        <!-- Add more items for the profil Spinner -->
     </string-array>
 </resources>

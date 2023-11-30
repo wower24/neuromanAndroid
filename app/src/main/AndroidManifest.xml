@@ -13,6 +13,10 @@
         android:theme="@style/Theme.NeuromanAndroid"
         tools:targetApi="31">
         <activity
+            android:name=".BoardActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"/>
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="landscape">
