@@ -12,7 +12,7 @@
                 <width>1580</width>
                 <height>880</height>
                 <source>rect:fill=0</source>
-                <fgcolor>0,0,255</fgcolor>
+                <fgcolor>255,255,255</fgcolor>
                 <clickOnEnd>0</clickOnEnd>
                 <autoClick>0</autoClick>
                 <duration>0</duration>

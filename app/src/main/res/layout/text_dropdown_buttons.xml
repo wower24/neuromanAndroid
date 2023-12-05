@@ -22,7 +22,7 @@
             android:id="@+id/layoutSpinner"
             android:layout_width="wrap_content"
             android:layout_height="60dp"
-            android:layout_marginEnd="10dp"/>
+            android:layout_marginEnd="10dp" />
         <!--DROP DOWN MENU BASED ON A LIST OF OPERATORS HERE -->
 
         <Button
@@ -30,12 +30,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
-            android:text="Nowy" />
+            android:text="Nowy"
+            android:textSize="30dp"
+            android:layout_gravity="center_vertical"/>
 
         <Button
             android:id="@+id/layoutButton2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Usuń" />
+            android:text="Usuń"
+            android:textSize="30dp"
+            android:layout_gravity="center_vertical"/>
     </LinearLayout>
 </layout>

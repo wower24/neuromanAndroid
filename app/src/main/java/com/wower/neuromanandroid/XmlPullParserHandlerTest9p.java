@@ -117,7 +117,12 @@ public class XmlPullParserHandlerTest9p {
                         } else if(tagName.equalsIgnoreCase("height")) {
                             state.setHeight(Integer.parseInt(text));
                         } else if(tagName.equalsIgnoreCase("source")) {
-                            state.setSource(text);
+                            if(text.startsWith("img:file=")) {
+                                String transformedSource = transformSourceString(text);
+                                state.setSource(transformedSource);
+                            } else {
+                                state.setSource(text);
+                            }
                         } else if(tagName.equalsIgnoreCase("fgcolor")) {
                             state.setFgcolor(text);
                         } else if(tagName.equalsIgnoreCase("clickOnEnd")) {
@@ -139,5 +144,26 @@ public class XmlPullParserHandlerTest9p {
         }
 
         return scenario;
+    }
+
+    private String transformSourceString(String source) {
+        source = source.replaceFirst("img:file=", "");
+        // Step 1: Prepend "img_" if not present
+        if (!source.startsWith("img_")) {
+            source = "img_" + source;
+        }
+
+        // Step 2: Replace "-" with "_"
+        source = source.replace("-", "_");
+
+        // Step 3: Replace non-allowed characters with "x"
+        source = source.replaceAll("[^a-zA-Z0-9_.]", "x");
+
+        // Step 4: Convert to lowercase
+        source = source.toLowerCase();
+
+        source = source.replace(".png", "");
+
+        return source;
     }
 }

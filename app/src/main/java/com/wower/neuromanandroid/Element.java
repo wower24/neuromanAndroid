@@ -11,6 +11,9 @@ public class Element {
 
     public Thread clickThread;
 
+    private int currentStateIndex = 0;
+    private boolean stateToggled = false; // Flag to indicate if the state has been toggled
+
     public Element() {}
 
     public Element(String elementID, List<ElementState> states) {
@@ -50,6 +53,21 @@ public class Element {
                 return es;
         }
         return null;
+    }
+
+    public void toggleState() {
+        if(!stateToggled) {
+            currentStateIndex = currentStateIndex == 0 ? 1 : 0; // Toggle between 0 and 1
+            stateToggled = true;
+        }
+    }
+
+    public int getCurrentStateIndex() {
+        return currentStateIndex;
+    }
+
+    public boolean isStateToggled() {
+        return stateToggled;
     }
 
     public String toString() {

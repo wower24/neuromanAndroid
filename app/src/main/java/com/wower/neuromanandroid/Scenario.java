@@ -7,6 +7,7 @@ import java.util.List;
 public class Scenario {
     String name;
     List<Board> board = new ArrayList<>();
+    int currentBoardIndex = 0;
 
     private static String baseDirectory;
 
@@ -28,6 +29,13 @@ public class Scenario {
 
     public List<Board> getBoard() {
         return board;
+    }
+
+    public Board getCurrentBoard() {
+        if(currentBoardIndex >= 0 && currentBoardIndex < board.size()) {
+            return board.get(currentBoardIndex);
+        }
+        return null;
     }
 
     public void setBoard(List<Board> board) {
