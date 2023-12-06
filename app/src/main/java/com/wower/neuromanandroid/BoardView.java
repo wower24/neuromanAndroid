@@ -20,7 +20,6 @@ public class BoardView extends View {
     private Scenario scenario;
     private float scaleX;
     private float scaleY;
-    boolean isScaled = false;
     public BoardView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
@@ -33,9 +32,9 @@ public class BoardView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if(!isScaled) {
+        if(!scenario.isScaled()) {
             calculateScalingFactors(scenario.getBoard().get(0).getElement().get(0));
-            isScaled = true;
+            scenario.setScaled(true);
         }
         if(scenario != null) {
             drawBoard(scenario.getCurrentBoard(), canvas);
@@ -45,9 +44,6 @@ public class BoardView extends View {
     private void drawBoard(Board board, Canvas canvas) {
         for (Element element : board.getElement()) {
             if ("frame".equals(element.getElementID())) {
-                // Handle the frame element
-                // If the frame does not change or does not need special handling, you can skip it
-                // For example, just draw its first state:
                 drawState(element.getState().get(0), canvas);
             } else {
                 // For other elements, use the existing logic
@@ -82,6 +78,7 @@ public class BoardView extends View {
             y = (int) (y * scaleX);
             width = (int) (width * scaleX);
             height = (int) (height * scaleX);
+
             String filename = state.getSource();
             Log.d("Drawable Name", "Resource name: " + filename);
             int resId = getResources().getIdentifier(filename, "drawable", getContext().getPackageName());
@@ -103,11 +100,6 @@ public class BoardView extends View {
             canvas.drawCircle(x + width / 2f, y + height / 2f, Math.min(width, height) / 2f, paint);
             }
         }
-        //update state parameters for other functions to use
-        state.setLocX(x);
-        state.setLocY(y);
-        state.setWidth(width);
-        state.setHeight(height);
     }
 
     public static int parseColorString(String colorString) {
@@ -135,7 +127,7 @@ public class BoardView extends View {
 
                 if(scenario.getName().equals("test9p")) {
                     if (!element.getElementID().equals("frame")) {
-                        if (isInsideElement(x, y, state)) {
+                        if (isInsideElement(x, y, state) && element.getState().size() > 1) {
                             element.toggleState(); // Toggle the state of the element
                             invalidate(); // Redraw the view
                             checkCompletion(); // Check if the test is complete
@@ -149,6 +141,11 @@ public class BoardView extends View {
                         goToNextBoard();
                         return true;
                     }
+
+                    if(element.getElementID().equals("przycisk_gotów_nieaktywny") && isInsideElement(x, y, state) && isInsideElement(x, y, state)) {
+                        element.toggleState();
+                        invalidate();
+                    }
                 }
             }
         }
@@ -156,19 +153,21 @@ public class BoardView extends View {
     }
 
     private void checkCompletion() {
-        for (Element element : scenario.getCurrentBoard().getElement()) {
-            // Skip the 'frame' element
-            if ("frame".equals(element.getElementID())) {
-                continue;
-            }
+        if(scenario.getName().equals("test9p")) {
+            for (Element element : scenario.getCurrentBoard().getElement()) {
+                // Skip the 'frame' element
+                if ("frame".equals(element.getElementID())) {
+                    continue;
+                }
 
-            if (!element.isStateToggled()) { // Check if the state has been toggled for non-frame elements
-                return; // At least one element (other than frame) is still in its initial state or not toggled
+                if (!element.isStateToggled()) { // Check if the state has been toggled for non-frame elements
+                    return; // At least one element (other than frame) is still in its initial state or not toggled
+                }
             }
+            Context context = getContext();
+            Intent intent = new Intent(context, MainActivity.class);
+            context.startActivity(intent);
         }
-        Context context = getContext();
-        Intent intent = new Intent(context, MainActivity.class);
-        context.startActivity(intent);
     }
 
     private boolean isInsideElement(int x, int y, ElementState state) {
@@ -178,11 +177,23 @@ public class BoardView extends View {
         int scaledWidth = state.getWidth();
         int scaledHeight = state.getHeight();
 
-        //for circle - test9p
-        int centerX = scaledX + scaledWidth / 2;
-        int centerY = scaledY + scaledHeight / 2;
-        int radius = Math.min(scaledWidth, scaledHeight) / 2;
-        return Math.sqrt(Math.pow(centerX - x, 2) + Math.pow(centerY - y, 2)) <= radius;
+        if(scenario.getName().equals("test9p")) {
+            //for circle - test9p
+            scaledX *= scaleX;
+            scaledY *= scaleY;
+            scaledWidth *= scaleX;
+            scaledHeight *= scaleY;
+        } else if(scenario.getName().equals("MOCA")) {
+            scaledX *= scaleX;
+            scaledY *= scaleX;
+            scaledWidth *= scaleX;
+            scaledHeight *= scaleX;
+        }
+            int centerX = scaledX + scaledWidth / 2;
+            int centerY = scaledY + scaledHeight / 2;
+            int radius = Math.min(scaledWidth, scaledHeight) / 2;
+            return Math.sqrt(Math.pow(centerX - x, 2) + Math.pow(centerY - y, 2)) <= radius;
+
 
         //TODO: prepare isInsideElements for pictures
     }

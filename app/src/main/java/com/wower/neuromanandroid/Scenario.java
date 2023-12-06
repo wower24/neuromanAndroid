@@ -8,7 +8,7 @@ public class Scenario {
     String name;
     List<Board> board = new ArrayList<>();
     int currentBoardIndex = 0;
-
+    boolean isScaled = false;
     private static String baseDirectory;
 
 
@@ -42,6 +42,13 @@ public class Scenario {
         this.board = board;
     }
 
+    public boolean isScaled() {
+        return isScaled;
+    }
+
+    public void setScaled(boolean isScaled) {
+        this.isScaled = isScaled;
+    }
     public void save(String filename) {
         saveScenarioXML(filename, this);
     }

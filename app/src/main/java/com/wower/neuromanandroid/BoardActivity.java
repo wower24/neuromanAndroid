@@ -16,7 +16,7 @@ public class BoardActivity extends AppCompatActivity {
 
         try {
             XmlPullParserHandlerTest9p parser = new XmlPullParserHandlerTest9p();
-            InputStream inputStream = getAssets().open("moca.xml");
+            InputStream inputStream = getAssets().open("test9p.xml");
 
             Scenario scenario = parser.parse(inputStream);
             BoardView boardView = findViewById(R.id.boardView);

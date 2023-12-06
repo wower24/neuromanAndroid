@@ -157,12 +157,12 @@ public class XmlPullParserHandlerTest9p {
         source = source.replace("-", "_");
 
         // Step 3: Replace non-allowed characters with "x"
-        source = source.replaceAll("[^a-zA-Z0-9_.]", "x");
+        source = source.replaceAll("[^a-zA-Z0-9_]", "x");
 
         // Step 4: Convert to lowercase
         source = source.toLowerCase();
 
-        source = source.replace(".png", "");
+        source = source.replace("xpng", "");
 
         return source;
     }
