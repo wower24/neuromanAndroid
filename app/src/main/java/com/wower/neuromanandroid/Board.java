@@ -8,6 +8,8 @@ public class Board {
     String name;
     List<Element> element = new ArrayList<Element>();
 
+    boolean isActive = false;
+
     public Board() {}
 
     public Board(String name, List<Element> element) {
@@ -28,8 +30,26 @@ public class Board {
         return element;
     }
 
+    public Element getElementByID(String elementID) {
+        Element result = null;
+
+        for(Element e : element) {
+            if(e.getElementID().equals(elementID)) {
+                result = e;
+            }
+        }
+        return result;
+    }
+    public boolean isActive() {
+        return isActive;
+    }
+
     public void setElement(List<Element> elements) {
         this.element = elements;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     /**

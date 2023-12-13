@@ -14,14 +14,30 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BoardView extends View {
     private Scenario scenario;
+    private Context context;
     private float scaleX;
     private float scaleY;
+    private Paint paint = new Paint();
+
+    private Map<String, Drawable> drawableCache = new HashMap<>();
+    StringBuilder xmlBuilder = new StringBuilder();
+
+    private List<Element> clickedElements = new ArrayList<>();
+    private List<Element> elementsToAdd = new ArrayList<>();
+
     public BoardView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        this.context = context;
     }
 
     public void setScenario(Scenario scenario) {
@@ -43,13 +59,14 @@ public class BoardView extends View {
 
     private void drawBoard(Board board, Canvas canvas) {
         for (Element element : board.getElement()) {
+            //Log.d("ELEMENT ID", "Drawing: " +  element.getElementID());
             if ("frame".equals(element.getElementID())) {
                 drawState(element.getState().get(0), canvas);
             } else {
                 // For other elements, use the existing logic
                 List<ElementState> states = element.getState();
                 if (element.getCurrentStateIndex() < states.size()) {
-                    ElementState state = states.get(element.getCurrentStateIndex());
+                    ElementState state = element.getCurrentState();
                     drawState(state, canvas);
                 } else {
                     Log.e("BoardView", "Invalid state index for element: " + element.getElementID());
@@ -59,14 +76,13 @@ public class BoardView extends View {
     }
 
     private void drawState(ElementState state, Canvas canvas) {
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.FILL);
-        if(state.getFgcolor() != null) {
-            paint.setColor(parseColorString(state.getFgcolor()));
-        }
-        else {
-            paint.setColor(Color.parseColor("#FFFFFF"));
-        }
+            paint.reset();
+            paint.setStyle(Paint.Style.FILL);
+            if (state.getFgcolor() != null) {
+                paint.setColor(parseColorString(state.getFgcolor()));
+            } else {
+                paint.setColor(Color.parseColor("#FFFFFF"));
+            }
 
         int x = state.getLocX();
         int y =state.getLocY();
@@ -79,11 +95,10 @@ public class BoardView extends View {
             width = (int) (width * scaleX);
             height = (int) (height * scaleX);
 
-            String filename = state.getSource();
-            Log.d("Drawable Name", "Resource name: " + filename);
-            int resId = getResources().getIdentifier(filename, "drawable", getContext().getPackageName());
-            Log.d("Drawable ID", "Resource ID: " + resId);
-            Drawable drawable = ContextCompat.getDrawable(getContext(), resId);
+            //String filename = state.getSource();
+            //Log.d("Drawable Name", "Resource name: " + filename);
+            Drawable drawable = getDrawable(state.getSource());
+            //Drawable drawable = ContextCompat.getDrawable(getContext(), resId);
             if (drawable != null) {
                 drawable.setBounds(x, y, x + width, y + height);
                 drawable.draw(canvas);
@@ -94,10 +109,21 @@ public class BoardView extends View {
             width = (int) (width * scaleX);
             height = (int) (height * scaleY);
 
-            if (state.getSource().contains("rect")) {
-            canvas.drawRect(x, y, x + width, y + height, paint);
-            } else if (state.getSource().contains("circle")) {
-            canvas.drawCircle(x + width / 2f, y + height / 2f, Math.min(width, height) / 2f, paint);
+            if(state.getSource() != null) {
+                if (state.getSource().contains("rect")) {
+                    canvas.drawRect(x, y, x + width, y + height, paint);
+                } else if (state.getSource().contains("circle")) {
+                    if(state.getStateID().equals("2")) {
+                        paint.setColor(Color.parseColor("#FFFFFF"));
+                    }
+                    canvas.drawCircle(x + width / 2f, y + height / 2f, Math.min(width, height) / 2f, paint);
+                } else if (state.getSource().contains("line") && scenario.getCurrentBoard().getName().contains("łączenie")) {
+                    paint.setColor(Color.parseColor("#000000"));
+                    paint.setStrokeWidth(3);
+                    //Log.d("LINE DETAILS", "Source: " + state.getSource());
+                    canvas.drawLine(state.getLocX(), state.getLocY(),
+                            state.getWidth(), state.getHeight(), paint);
+                }
             }
         }
     }
@@ -142,14 +168,68 @@ public class BoardView extends View {
                         return true;
                     }
 
+                    if(board.isActive()) {
+                        if (board.getName().equals("03_łączenie") && (isInsideElement(x, y, state) || element.getCurrentState().getAutoCLick() == 1)) {
+                            clickedElements.add(element);
+                            changeStates(board, element);
+                        } else if (isInsideElement(x, y, state) && element.getState().size() > 1) {
+                            Log.d("TOUCHED SOMETHING", board.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
+                            changeStates(board, element); // Toggle the state of the element
+                            Log.d("CHANGED SOMETHING", board.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
+                        }
+                    }
+
                     if(element.getElementID().equals("przycisk_gotów_nieaktywny") && isInsideElement(x, y, state) && isInsideElement(x, y, state)) {
-                        element.toggleState();
-                        invalidate();
+                        changeStates(board, element);
+                        updateElement(board.getElementByID("przycisk_gotów_aktywny"));
+                        board.setActive(true);
                     }
                 }
             }
+
+            if(elementsToAdd.size()>0) {
+                board.getElement().addAll(elementsToAdd);
+                invalidate();
+            }
         }
         return true;
+    }
+
+    private void changeStates(Board currentBoard, Element currentElement) {
+        ElementState state = currentElement.getCurrentState();
+            for (ElementAction action : state.getActions()) {
+                if(action.getElementID().equals(":-1") && action.getStateID().equals(":line")
+                        && clickedElements.size()>0) {
+                    int lastClickedIndex = clickedElements.size() - 3;
+                    ElementState lastClicked = clickedElements.get(lastClickedIndex).getCurrentState();
+                    int fromX = (int) (lastClicked.getLocX() * scaleX + (lastClicked.getWidth() * scaleX) / 2);
+                    int fromY = (int) (lastClicked.getLocY() * scaleX + (lastClicked.getHeight() * scaleX) / 2);
+                    int toX = (int) (state.getLocX() * scaleX + (state.getWidth() * scaleX) / 2);
+                    int toY = (int) (state.getLocY() * scaleX + (state.getHeight() * scaleX) / 2);
+                    //Log.d("FROMTO", currentElement.getElementID() + " FROM: " + fromX + " " + fromY + " TO: " + toX + " " + toY);
+                        Element line = addLineElement(
+                                fromX,
+                                fromY,
+                                toX,
+                                toY);
+                        elementsToAdd.add(0, line);
+
+                } else {
+                    Element element = currentBoard.getElementByID(action.getElementID());
+                    element.setCurrentStateID(action.getStateID());
+                    Log.d("SAME STATE", currentBoard.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
+                    updateElement(element);
+                }
+            }
+    }
+    private void updateElement(Element element) {
+        ElementState currentState = element.getCurrentState();
+        int locX = (int) (currentState.getLocX() * scaleX);
+        int locY = (int) (currentState.getLocY() * scaleX);
+        int width = (int) (currentState.getWidth() * scaleX);
+        int height = (int) (currentState.getHeight() * scaleX);
+
+        invalidate(locX, locY, locX + width, locY + height);
     }
 
     private void checkCompletion() {
@@ -188,14 +268,13 @@ public class BoardView extends View {
             scaledY *= scaleX;
             scaledWidth *= scaleX;
             scaledHeight *= scaleX;
+            //Log.d("INSIDE LOC", scaledX + " " + scaledY + " " + (scaledX+scaledWidth) + " " + (scaledY + scaledHeight));
+            return x >= scaledX && x <= (scaledX + scaledWidth) && y >= scaledY && y <= (scaledY + scaledHeight);
         }
             int centerX = scaledX + scaledWidth / 2;
             int centerY = scaledY + scaledHeight / 2;
             int radius = Math.min(scaledWidth, scaledHeight) / 2;
             return Math.sqrt(Math.pow(centerX - x, 2) + Math.pow(centerY - y, 2)) <= radius;
-
-
-        //TODO: prepare isInsideElements for pictures
     }
 
     private void calculateScalingFactors(Element frame) {
@@ -210,10 +289,74 @@ public class BoardView extends View {
     }
 
     public void goToNextBoard() {
+        String boardStateXml = serializeBoardState(scenario.getCurrentBoard());
+        saveBoardStateToFile(boardStateXml, "boardState.xml");
         if(scenario.currentBoardIndex < scenario.getBoard().size() - 1) {
             scenario.currentBoardIndex++;
             invalidate();
         }
     }
 
+    private Drawable getDrawable(String filename) {
+        if (!drawableCache.containsKey(filename)) {
+            int resId = getResources().getIdentifier(filename, "drawable", getContext().getPackageName());
+            Drawable drawable = ContextCompat.getDrawable(getContext(), resId);
+            drawableCache.put(filename, drawable);
+        }
+        return drawableCache.get(filename);
+    }
+
+    Element addLineElement(int fromX, int fromY, int toX, int toY) {
+        ElementState lineState = new ElementState();
+        if(fromX<=toX && fromY<=toY) {
+            lineState = new ElementState("line", fromX, fromY, toX-fromX, toY-fromY	, "line:");
+        }
+        if(fromX>toX && fromY>toY) {
+            lineState = new ElementState("line", toX, toY, fromX-toX, fromY-toY	, "line:");
+        }
+        if(fromX<=toX && fromY>toY) {
+            lineState = new ElementState("line", fromX, toY, fromX-toX, toY-fromY	, "line:dir=up");
+        }
+        if(fromX>toX && fromY<=toY) {
+            lineState = new ElementState("line", toX, fromY, toX-fromX, fromY-toY	, "line:dir=up");
+        }
+
+        List<ElementState> list = new ArrayList<>();
+        list.add(lineState);
+        Element line = new Element(":line", list);
+        line.setCurrentStateID("line");
+        return line;
+    }
+
+
+    private String serializeBoardState(Board board) {
+        xmlBuilder.append("<board>\n");
+        xmlBuilder.append("\t<name>").append(board.getName()).append("</name>\n");
+
+        for (Element element : board.getElement()) {
+            xmlBuilder.append("\t<element>\n");
+            xmlBuilder.append("\t\t<elementID>").append(element.getElementID()).append("</elementID>\n");
+            // Assume each element has a final state to serialize
+            ElementState finalState = element.getCurrentState();
+            xmlBuilder.append("\t\t<state>\n");
+            // Add state details (locX, locY, width, height, source, etc.)
+            xmlBuilder.append("\t\t\t<stateID>").append(finalState.getStateID()).append("</stateID>\n");
+            // ... (other state details)
+            xmlBuilder.append("\t\t</state>\n");
+            xmlBuilder.append("\t</element>\n");
+        }
+
+        xmlBuilder.append("</board>\n");
+        return xmlBuilder.toString();
+    }
+
+    private void saveBoardStateToFile(String boardStateXml, String fileName) {
+        try {
+            FileOutputStream fos = context.openFileOutput(fileName, Context.MODE_APPEND);
+            fos.write(boardStateXml.getBytes());
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

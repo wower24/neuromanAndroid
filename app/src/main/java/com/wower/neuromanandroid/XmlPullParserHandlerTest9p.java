@@ -163,6 +163,7 @@ public class XmlPullParserHandlerTest9p {
         source = source.toLowerCase();
 
         source = source.replace("xpng", "");
+        source = source.replace("xgif", "");
 
         return source;
     }

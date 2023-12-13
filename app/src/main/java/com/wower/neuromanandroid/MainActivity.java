@@ -195,16 +195,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startScenario(String scenarioName) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Starting " + scenarioName + " scenario...")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User clicked OK, do nothing or handle it as needed
-                    }
-                });
-        // Create and show the dialog
-        builder.create().show();
         Intent intent = new Intent(this, BoardActivity.class);
+        intent.putExtra("SCENARIO_NAME", scenarioName.toLowerCase());
         startActivity(intent);
     }
 

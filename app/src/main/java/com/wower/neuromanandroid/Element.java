@@ -43,8 +43,9 @@ public class Element {
             ElementState es = getCurrentState();
             es.setSource(es.getSource() + newStateID);
         }
-        else
+        else {
             this.currentStateID = newStateID;
+        }
     }
 
     public ElementState getCurrentState() {
@@ -52,14 +53,14 @@ public class Element {
             if(es.getStateID().equals(getCurrentStateID()))
                 return es;
         }
-        return null;
+        return state.get(0);
     }
 
     public void toggleState() {
-        if(!stateToggled) {
-            currentStateIndex = currentStateIndex == 0 ? 1 : 0; // Toggle between 0 and 1
-            stateToggled = true;
-        }
+            if(this.getState().size() == 2) {
+                setCurrentStateID("2"); // Toggle between 0 and 1
+                stateToggled = true;
+            }
     }
 
     public int getCurrentStateIndex() {
