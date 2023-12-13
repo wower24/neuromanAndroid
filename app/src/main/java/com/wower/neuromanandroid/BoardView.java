@@ -120,9 +120,10 @@ public class BoardView extends View {
                 } else if (state.getSource().contains("line") && scenario.getCurrentBoard().getName().contains("łączenie")) {
                     paint.setColor(Color.parseColor("#000000"));
                     paint.setStrokeWidth(3);
-                    //Log.d("LINE DETAILS", "Source: " + state.getSource());
+                    Log.d("LINE DETAILS", "FROM: " + state.getLocX() + " " + state.getLocY()
+                            + "TO: " + state.getLocX()  + state.getWidth() + " " + state.getLocY() + state.getHeight());
                     canvas.drawLine(state.getLocX(), state.getLocY(),
-                            state.getWidth(), state.getHeight(), paint);
+                            state.getLocX() + state.getWidth(), state.getLocY() + state.getHeight(), paint);
                 }
             }
         }
@@ -170,7 +171,9 @@ public class BoardView extends View {
 
                     if(board.isActive()) {
                         if (board.getName().equals("03_łączenie") && (isInsideElement(x, y, state) || element.getCurrentState().getAutoCLick() == 1)) {
-                            clickedElements.add(element);
+                            if(element.getElementID().contains("koło")) {
+                                clickedElements.add(element);
+                            }
                             changeStates(board, element);
                         } else if (isInsideElement(x, y, state) && element.getState().size() > 1) {
                             Log.d("TOUCHED SOMETHING", board.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
@@ -200,18 +203,19 @@ public class BoardView extends View {
             for (ElementAction action : state.getActions()) {
                 if(action.getElementID().equals(":-1") && action.getStateID().equals(":line")
                         && clickedElements.size()>0) {
-                    int lastClickedIndex = clickedElements.size() - 3;
-                    ElementState lastClicked = clickedElements.get(lastClickedIndex).getCurrentState();
-                    int fromX = (int) (lastClicked.getLocX() * scaleX + (lastClicked.getWidth() * scaleX) / 2);
-                    int fromY = (int) (lastClicked.getLocY() * scaleX + (lastClicked.getHeight() * scaleX) / 2);
-                    int toX = (int) (state.getLocX() * scaleX + (state.getWidth() * scaleX) / 2);
-                    int toY = (int) (state.getLocY() * scaleX + (state.getHeight() * scaleX) / 2);
-                    //Log.d("FROMTO", currentElement.getElementID() + " FROM: " + fromX + " " + fromY + " TO: " + toX + " " + toY);
-                        Element line = addLineElement(
-                                fromX,
-                                fromY,
-                                toX,
-                                toY);
+                    int lastClickedIndex = clickedElements.size() - 2;
+                    ElementState lastClickedState = clickedElements.get(lastClickedIndex).getCurrentState();
+                    int centerXLastClicked = lastClickedState.getLocX() + lastClickedState.getWidth() / 2;
+                    int centerYLastClicked = lastClickedState.getLocY() + lastClickedState.getHeight() / 2;
+                    int centerXCurrent = state.getLocX() + state.getWidth() / 2;
+                    int centerYCurrent = state.getLocY() + state.getHeight() / 2;
+                    // Add the line element
+                    centerXLastClicked = (int) (centerXLastClicked * scaleX);
+                    centerYLastClicked = (int) (centerYLastClicked * scaleX);
+                    centerXCurrent = (int) (centerXCurrent * scaleX);
+                    centerYCurrent = (int) (centerYCurrent * scaleX);
+
+                    Element line = addLineElement(centerXLastClicked, centerYLastClicked, centerXCurrent, centerYCurrent);
                         elementsToAdd.add(0, line);
 
                 } else {
@@ -306,21 +310,14 @@ public class BoardView extends View {
         return drawableCache.get(filename);
     }
 
-    Element addLineElement(int fromX, int fromY, int toX, int toY) {
-        ElementState lineState = new ElementState();
-        if(fromX<=toX && fromY<=toY) {
-            lineState = new ElementState("line", fromX, fromY, toX-fromX, toY-fromY	, "line:");
-        }
-        if(fromX>toX && fromY>toY) {
-            lineState = new ElementState("line", toX, toY, fromX-toX, fromY-toY	, "line:");
-        }
-        if(fromX<=toX && fromY>toY) {
-            lineState = new ElementState("line", fromX, toY, fromX-toX, toY-fromY	, "line:dir=up");
-        }
-        if(fromX>toX && fromY<=toY) {
-            lineState = new ElementState("line", toX, fromY, toX-fromX, fromY-toY	, "line:dir=up");
-        }
+    Element addLineElement(int centerXFrom, int centerYFrom, int centerXTo, int centerYTo) {
+        // Apply scaling to the coordinates
+        int scaledCenterXFrom = (int) (centerXFrom * scaleX);
+        int scaledCenterYFrom = (int) (centerYFrom * scaleX);
+        int scaledCenterXTo = (int) (centerXTo * scaleX);
+        int scaledCenterYTo = (int) (centerYTo * scaleX);
 
+        ElementState lineState = new ElementState("line", scaledCenterXFrom, scaledCenterYFrom, scaledCenterXTo - scaledCenterXFrom, scaledCenterYTo - scaledCenterYFrom, "line:");
         List<ElementState> list = new ArrayList<>();
         list.add(lineState);
         Element line = new Element(":line", list);
