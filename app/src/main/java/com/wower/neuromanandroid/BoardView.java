@@ -121,7 +121,7 @@ public class BoardView extends View {
                     paint.setColor(Color.parseColor("#000000"));
                     paint.setStrokeWidth(3);
                     Log.d("LINE DETAILS", "FROM: " + state.getLocX() + " " + state.getLocY()
-                            + "TO: " + state.getLocX()  + state.getWidth() + " " + state.getLocY() + state.getHeight());
+                            + "TO: " + (state.getLocX()  + state.getWidth()) + " " + (state.getLocY() + state.getHeight()));
                     canvas.drawLine(state.getLocX(), state.getLocY(),
                             state.getLocX() + state.getWidth(), state.getLocY() + state.getHeight(), paint);
                 }
@@ -209,11 +209,6 @@ public class BoardView extends View {
                     int centerYLastClicked = lastClickedState.getLocY() + lastClickedState.getHeight() / 2;
                     int centerXCurrent = state.getLocX() + state.getWidth() / 2;
                     int centerYCurrent = state.getLocY() + state.getHeight() / 2;
-                    // Add the line element
-                    centerXLastClicked = (int) (centerXLastClicked * scaleX);
-                    centerYLastClicked = (int) (centerYLastClicked * scaleX);
-                    centerXCurrent = (int) (centerXCurrent * scaleX);
-                    centerYCurrent = (int) (centerYCurrent * scaleX);
 
                     Element line = addLineElement(centerXLastClicked, centerYLastClicked, centerXCurrent, centerYCurrent);
                         elementsToAdd.add(0, line);
