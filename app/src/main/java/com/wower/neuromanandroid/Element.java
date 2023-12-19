@@ -39,13 +39,14 @@ public class Element {
     }
 
     public void setCurrentStateID(String newStateID) {
-        if(this.currentStateID!=null && this.currentStateID.equals("edit")) {
-            ElementState es = getCurrentState();
+        if(elementID.equals("result") || elementID.equals("wynik")) {
+            ElementState es = new ElementState(newStateID, getCurrentState().getLocX(), getCurrentState().getLocY(),
+                    getCurrentState().getWidth(), getCurrentState().getHeight(), getCurrentState().getSource());
             es.setSource(es.getSource() + newStateID);
+            state.add(es);
         }
-        else {
-            this.currentStateID = newStateID;
-        }
+
+        this.currentStateID = newStateID;
     }
 
     public ElementState getCurrentState() {

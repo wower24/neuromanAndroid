@@ -75,7 +75,6 @@ public class ElementState {
     public String getStateID() {
         return stateID;
     }
-    public int getStateIndex() { return Integer.parseInt(stateID); }
 
     public int getLocX() {
         return locX;

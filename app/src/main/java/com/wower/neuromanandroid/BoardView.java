@@ -124,6 +124,37 @@ public class BoardView extends View {
                             + "TO: " + (state.getLocX()  + state.getWidth()) + " " + (state.getLocY() + state.getHeight()));
                     canvas.drawLine(state.getLocX(), state.getLocY(),
                             state.getLocX() + state.getWidth(), state.getLocY() + state.getHeight(), paint);
+                } else if (state.getSource().contains("edit") || state.getSource().contains("text")) {
+                    String source = state.getSource();
+                    String text;
+                    if(state.getSource().contains("edit")) {
+                        text = source.substring(source.indexOf(";t=") + 3);
+                    } else {
+                        text = source.substring(source.indexOf(":t=") + 3);
+                    }
+                    text = text.split(";")[0]; // Extract the text
+                    Log.d("TEXT CHECK", text);
+                    paint.setColor(Color.parseColor("#000000"));
+                    float textSize = paint.getTextSize();
+                    if (source.contains("height=")) {
+                        String heightStr = source.split("height=")[1];
+                        heightStr = heightStr.split(";")[0];
+                        int textHeight = Integer.parseInt(heightStr);
+                        textSize = textHeight * scaleX;
+                    }
+
+                    // Fit text in the specified width
+                    paint.setTextSize(textSize);
+                    paint.setTextAlign(Paint.Align.LEFT);
+                    float textWidth = paint.measureText(text);
+                    while (textWidth > width && textSize > 0) {
+                        textSize -= 1;
+                        paint.setTextSize(textSize);
+                        textWidth = paint.measureText(text);
+                    }
+                    Log.d("XY", "X: " + x + " Y+TS: " + (y + textSize));
+                    // Draw the text
+                    canvas.drawText(text, x, (y + textSize)/5, paint);
                 }
             }
         }
@@ -216,7 +247,7 @@ public class BoardView extends View {
                 } else {
                     Element element = currentBoard.getElementByID(action.getElementID());
                     element.setCurrentStateID(action.getStateID());
-                    Log.d("SAME STATE", currentBoard.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
+                    Log.d("SAME STATE", currentBoard.getName() + ":" + element.getElementID() + ":" + element.getCurrentState().getStateID());
                     updateElement(element);
                 }
             }
