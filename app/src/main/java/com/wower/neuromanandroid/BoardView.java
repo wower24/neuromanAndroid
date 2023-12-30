@@ -92,13 +92,15 @@ public class BoardView extends View {
         if (state.getSource() != null && state.getSource().startsWith("img_")) {
             x = (int) (x * scaleX);
             y = (int) (y * scaleX);
+            if(state.getSource().contains("ff6024892361")){
+                y += 80;
+            }
             width = (int) (width * scaleX);
             height = (int) (height * scaleX);
 
             //String filename = state.getSource();
             //Log.d("Drawable Name", "Resource name: " + filename);
             Drawable drawable = getDrawable(state.getSource());
-            //Drawable drawable = ContextCompat.getDrawable(getContext(), resId);
             if (drawable != null) {
                 drawable.setBounds(x, y, x + width, y + height);
                 drawable.draw(canvas);
@@ -120,8 +122,6 @@ public class BoardView extends View {
                 } else if (state.getSource().contains("line") && scenario.getCurrentBoard().getName().contains("łączenie")) {
                     paint.setColor(Color.parseColor("#000000"));
                     paint.setStrokeWidth(3);
-                    Log.d("LINE DETAILS", "FROM: " + state.getLocX() + " " + state.getLocY()
-                            + "TO: " + (state.getLocX()  + state.getWidth()) + " " + (state.getLocY() + state.getHeight()));
                     canvas.drawLine(state.getLocX(), state.getLocY(),
                             state.getLocX() + state.getWidth(), state.getLocY() + state.getHeight(), paint);
                 } else if (state.getSource().contains("edit") || state.getSource().contains("text")) {
@@ -133,7 +133,7 @@ public class BoardView extends View {
                         text = source.substring(source.indexOf(":t=") + 3);
                     }
                     text = text.split(";")[0]; // Extract the text
-                    Log.d("TEXT CHECK", text);
+                    //Log.d("TEXT CHECK", text);
                     paint.setColor(Color.parseColor("#000000"));
                     float textSize = paint.getTextSize();
                     if (source.contains("height=")) {
@@ -152,7 +152,7 @@ public class BoardView extends View {
                         paint.setTextSize(textSize);
                         textWidth = paint.measureText(text);
                     }
-                    Log.d("XY", "X: " + x + " Y+TS: " + (y + textSize));
+                    //Log.d("XY", "X: " + x + " Y+TS: " + (y + textSize));
                     // Draw the text
                     canvas.drawText(text, x, (y + textSize)/5, paint);
                 }
@@ -200,6 +200,12 @@ public class BoardView extends View {
                         return true;
                     }
 
+                    if (element.getElementID().equals("przycisk_reset") && isInsideElement(x, y, state)) {
+                        scenario.getCurrentBoard().resetBoard();
+                        clickedElements = new ArrayList<>();
+                        invalidate();
+                    }
+
                     if(board.isActive()) {
                         if (board.getName().equals("03_łączenie") && (isInsideElement(x, y, state) || element.getCurrentState().getAutoCLick() == 1)) {
                             if(element.getElementID().contains("koło")) {
@@ -207,9 +213,10 @@ public class BoardView extends View {
                             }
                             changeStates(board, element);
                         } else if (isInsideElement(x, y, state) && element.getState().size() > 1) {
-                            Log.d("TOUCHED SOMETHING", board.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
+                            //Log.d("TOUCHED SOMETHING", board.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
+                            clickedElements.add(element);
                             changeStates(board, element); // Toggle the state of the element
-                            Log.d("CHANGED SOMETHING", board.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
+                            //Log.d("CHANGED SOMETHING", board.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
                         }
                     }
 
@@ -247,7 +254,7 @@ public class BoardView extends View {
                 } else {
                     Element element = currentBoard.getElementByID(action.getElementID());
                     element.setCurrentStateID(action.getStateID());
-                    Log.d("SAME STATE", currentBoard.getName() + ":" + element.getElementID() + ":" + element.getCurrentState().getStateID());
+                    //Log.d("SAME STATE", currentBoard.getName() + ":" + element.getElementID() + ":" + element.getCurrentState().getStateID());
                     updateElement(element);
                 }
             }
@@ -298,7 +305,6 @@ public class BoardView extends View {
             scaledY *= scaleX;
             scaledWidth *= scaleX;
             scaledHeight *= scaleX;
-            //Log.d("INSIDE LOC", scaledX + " " + scaledY + " " + (scaledX+scaledWidth) + " " + (scaledY + scaledHeight));
             return x >= scaledX && x <= (scaledX + scaledWidth) && y >= scaledY && y <= (scaledY + scaledHeight);
         }
             int centerX = scaledX + scaledWidth / 2;
@@ -319,6 +325,17 @@ public class BoardView extends View {
     }
 
     public void goToNextBoard() {
+        String clickedString = "";
+        for(Element el: clickedElements) {
+            clickedString += (el.elementID + " ");
+        }
+        Log.d("CLICKING WRAPPED", clickedString);
+        String conditionString = "";
+        for(Condition condition: scenario.getCurrentBoard().getEvaluate().getRequired()) {
+            conditionString += condition.getElementID() + " ";
+        }
+        Log.d("EXPECTED", conditionString);
+        clickedElements = new ArrayList<>();
         String boardStateXml = serializeBoardState(scenario.getCurrentBoard());
         saveBoardStateToFile(boardStateXml, "boardState.xml");
         if(scenario.currentBoardIndex < scenario.getBoard().size() - 1) {

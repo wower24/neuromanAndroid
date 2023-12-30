@@ -7,6 +7,7 @@ import java.util.List;
 public class Board {
     String name;
     List<Element> element = new ArrayList<Element>();
+    Evaluate evaluate;
 
     boolean isActive = false;
 
@@ -50,6 +51,14 @@ public class Board {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public void setEvaluate(Evaluate evaluate) {
+        this.evaluate = evaluate;
+    }
+
+    public Evaluate getEvaluate() {
+        return evaluate;
     }
 
     /**

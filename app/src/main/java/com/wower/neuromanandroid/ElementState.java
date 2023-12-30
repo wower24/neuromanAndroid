@@ -52,6 +52,10 @@ public class ElementState {
         this.source = source;
     }
 
+    public void setOriginalSource(String originalSource) {
+        this.originalSource = originalSource;
+    }
+
     public void setFgcolor(String fgcolor) {
         this.fgcolor = fgcolor;
     }
