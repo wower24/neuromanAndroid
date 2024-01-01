@@ -31,8 +31,6 @@ public class BoardView extends View {
 
     private Map<String, Drawable> drawableCache = new HashMap<>();
     StringBuilder xmlBuilder = new StringBuilder();
-
-    private List<Element> clickedElements = new ArrayList<>();
     private List<Element> elementsToAdd = new ArrayList<>();
 
     public BoardView(Context context, @Nullable AttributeSet attrs) {
@@ -200,21 +198,20 @@ public class BoardView extends View {
                         return true;
                     }
 
-                    if (element.getElementID().equals("przycisk_reset") && isInsideElement(x, y, state)) {
-                        scenario.getCurrentBoard().resetBoard();
-                        clickedElements = new ArrayList<>();
-                        invalidate();
                     }
 
                     if(board.isActive()) {
                         if (board.getName().equals("03_łączenie") && (isInsideElement(x, y, state) || element.getCurrentState().getAutoCLick() == 1)) {
                             if(element.getElementID().contains("koło")) {
-                                clickedElements.add(element);
+                                board.getClickedElements().add(element);
                             }
                             changeStates(board, element);
                         } else if (isInsideElement(x, y, state) && element.getState().size() > 1) {
                             //Log.d("TOUCHED SOMETHING", board.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
-                            clickedElements.add(element);
+                            if(!element.elementID.equals("kwadrat") && !element.elementID.contains("pole") && !element.elementID.endsWith("ścianka") && !element.elementID.endsWith("scianka")) {
+                                board.getClickedElements().add(element);
+                            }
+
                             changeStates(board, element); // Toggle the state of the element
                             //Log.d("CHANGED SOMETHING", board.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
                         }
@@ -225,6 +222,16 @@ public class BoardView extends View {
                         updateElement(board.getElementByID("przycisk_gotów_aktywny"));
                         board.setActive(true);
                     }
+
+                if (element.getElementID().equals("przycisk_reset") && isInsideElement(x, y, state)) {
+                    scenario.getCurrentBoard().resetBoard();
+                    invalidate();
+                }
+
+                if(element.getElementID().contains("poprawnie") && isInsideElement(x, y, state)) {
+                    scenario.getCurrentBoard().getClickedElements().clear();
+                    scenario.getCurrentBoard().getClickedElements().add(element);
+                    invalidate();
                 }
             }
 
@@ -240,9 +247,9 @@ public class BoardView extends View {
         ElementState state = currentElement.getCurrentState();
             for (ElementAction action : state.getActions()) {
                 if(action.getElementID().equals(":-1") && action.getStateID().equals(":line")
-                        && clickedElements.size()>0) {
-                    int lastClickedIndex = clickedElements.size() - 2;
-                    ElementState lastClickedState = clickedElements.get(lastClickedIndex).getCurrentState();
+                        && currentBoard.getClickedElements().size()>0) {
+                    int lastClickedIndex = currentBoard.getClickedElements().size() - 2;
+                    ElementState lastClickedState = currentBoard.getClickedElements().get(lastClickedIndex).getCurrentState();
                     int centerXLastClicked = lastClickedState.getLocX() + lastClickedState.getWidth() / 2;
                     int centerYLastClicked = lastClickedState.getLocY() + lastClickedState.getHeight() / 2;
                     int centerXCurrent = state.getLocX() + state.getWidth() / 2;
@@ -326,21 +333,33 @@ public class BoardView extends View {
 
     public void goToNextBoard() {
         String clickedString = "";
-        for(Element el: clickedElements) {
+        for(Element el: scenario.getCurrentBoard().getClickedElements()) {
             clickedString += (el.elementID + " ");
         }
         Log.d("CLICKING WRAPPED", clickedString);
         String conditionString = "";
-        for(Condition condition: scenario.getCurrentBoard().getEvaluate().getRequired()) {
+
+        for (Condition condition : scenario.getCurrentBoard().getEvaluate().getRequired()) {
             conditionString += condition.getElementID() + " ";
         }
         Log.d("EXPECTED", conditionString);
-        clickedElements = new ArrayList<>();
+
+        boolean result = scenario.getCurrentBoard().isCorrect();
+        if (result) {
+            Log.d("RESULT", "PASSED :):):):):)");
+        } else {
+            Log.d("RESULT", "FAILED :(:(:(:(:(");
+        }
+        scenario.getCurrentBoard().getClickedElements().clear();
         String boardStateXml = serializeBoardState(scenario.getCurrentBoard());
         saveBoardStateToFile(boardStateXml, "boardState.xml");
         if(scenario.currentBoardIndex < scenario.getBoard().size() - 1) {
             scenario.currentBoardIndex++;
             invalidate();
+        } else {
+            Context context = getContext();
+            Intent intent = new Intent(context, MainActivity.class);
+            context.startActivity(intent);
         }
     }
 

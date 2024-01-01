@@ -72,10 +72,14 @@ public class XmlPullParserHandlerScenario {
                         } else if(tagName.equalsIgnoreCase("evaluate")) {
                             board.setEvaluate(evaluate);
                         } else if(tagName.equalsIgnoreCase("requiredCondition")) {
-                            evaluate.getRequired().add(condition);
+                            if(!condition.getElementID().contains("gotów")) {
+                                evaluate.getRequired().add(condition);
+                            }
                             condition = null;
                         } else if(tagName.equalsIgnoreCase("requiredOrderedCondition")) {
-                            evaluate.getRequiredOrdered().add(condition);
+                            if(!condition.getElementID().contains("gotów")) {
+                                evaluate.getRequiredOrdered().add(condition);
+                            }
                             condition = null;
                         } else if(tagName.equalsIgnoreCase("element")) {
                             element.setState(states);
@@ -100,7 +104,7 @@ public class XmlPullParserHandlerScenario {
                             } else if(action != null && action.getElementID() == null) {
                                 action.setElementID(text);
                             } else if(condition != null && condition.getElementID().equals("ready")) {
-                                condition.setElementID(text);
+                                    condition.setElementID(text);
                             }
                         } else if(tagName.equalsIgnoreCase("stateID")) {
                             if(state != null && state.getStateID() == null) {

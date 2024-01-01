@@ -3,21 +3,17 @@ package com.wower.neuromanandroid;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Board {
     String name;
     List<Element> element = new ArrayList<Element>();
-    Evaluate evaluate;
+    private List<Element> clickedElements = new ArrayList<>();
+    Evaluate evaluate = new Evaluate();
 
     boolean isActive = false;
 
     public Board() {}
-
-    public Board(String name, List<Element> element) {
-        super();
-        this.name = name;
-        this.element = element;
-    }
 
     public String getName() {
         return name;
@@ -61,6 +57,10 @@ public class Board {
         return evaluate;
     }
 
+    public List<Element> getClickedElements() {
+        return clickedElements;
+    }
+
     /**
      * remove dynamic elements created during display (starting with :)
      */
@@ -84,5 +84,42 @@ public class Board {
 
     }
 
+    public boolean isCorrect() {
+        if (evaluate.getRequired() == null) {
+            return true;
+        }
+        if(evaluate.getRequired().isEmpty() && clickedElements.isEmpty()) {
+            return true;
+        } else if (!evaluate.getRequired().isEmpty() && clickedElements.isEmpty()) {
+            return false;
+        } else if(!evaluate.getRequiredOrdered().isEmpty()) {
+            clickedElements = clickedElements.stream().distinct().collect(Collectors.toList());
+            return listsEqual(clickedElements, evaluate.getRequiredOrdered());
+        } else {
+            clickedElements = clickedElements.stream().distinct().collect(Collectors.toList());
+            return containsAllConditions(clickedElements, evaluate.getRequired());
+        }
+    }
 
+    private boolean listsEqual(List<Element> list1, List<Condition> list2) {
+        if(list1.size() != list2.size()) return false;
+
+        for(int i = 0; i < list1.size(); i++) {
+            if(!list1.get(i).getElementID().equals(list2.get(i).getElementID())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean containsAllConditions(List<Element> clickedElements, List<Condition> required) {
+        if(clickedElements.size() != required.size()) {
+            return false;
+        }
+
+        List<String> clickedIDs = clickedElements.stream().map(Element::getElementID).collect(Collectors.toList());
+        List<String> requiredIDs = required.stream().map(Condition::getElementID).collect(Collectors.toList());
+
+        return clickedIDs.containsAll(requiredIDs);
+    }
 }
