@@ -9,6 +9,7 @@ public class Board {
     String name;
     List<Element> element = new ArrayList<Element>();
     private List<Element> clickedElements = new ArrayList<>();
+    private List<Element> elementsToAdd = new ArrayList<>();
     Evaluate evaluate = new Evaluate();
 
     boolean isActive = false;
@@ -61,10 +62,19 @@ public class Board {
         return clickedElements;
     }
 
+    public List<Element> getElementsToAdd() {
+        return elementsToAdd;
+    }
+
     /**
      * remove dynamic elements created during display (starting with :)
      */
     public void resetBoard() {
+        List<Element> elementsToAddCopy = new ArrayList<>(elementsToAdd);
+
+        // Clear elementsToAdd
+        elementsToAdd.clear();
+
         Iterator<Element> it = getElement().iterator();
         while(it.hasNext()) {
             Element e = it.next();
@@ -73,6 +83,8 @@ public class Board {
             }
         }
 
+        getElement().addAll(elementsToAddCopy);
+
         for(Element e:getElement()) {
             e.setCurrentStateID(e.state.get(0).getStateID());
             if(e.getCurrentStateID().equals("edit"))
@@ -80,8 +92,6 @@ public class Board {
             if(e.clickThread!=null && e.clickThread.isAlive())
                 e.clickThread.interrupt();
         }
-
-
     }
 
     public boolean isCorrect() {

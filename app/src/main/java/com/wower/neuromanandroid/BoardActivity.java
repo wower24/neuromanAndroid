@@ -17,6 +17,7 @@ public class BoardActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String scenarioName = intent.getStringExtra("SCENARIO_NAME");
         String fileName = scenarioName + ".xml";
+        String badany = intent.getStringExtra("BADANY");
         try {
             XmlPullParserHandlerScenario parser = new XmlPullParserHandlerScenario();
             InputStream inputStream = getAssets().open(fileName);
@@ -24,6 +25,7 @@ public class BoardActivity extends AppCompatActivity {
             Scenario scenario = parser.parse(inputStream);
             BoardView boardView = findViewById(R.id.boardView);
             boardView.setScenario(scenario);
+            boardView.setBadany(badany);
 
         } catch(IOException e) {
             e.printStackTrace();

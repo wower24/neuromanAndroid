@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
     String[] scenariuszeArray = {"MOCA", "test9p"};
+    String badany;
+    String operator;
     AtomicInteger czasKlikaniaValue = new AtomicInteger(1100);
     int czasKlikaniaIncrement = 100;
     AtomicInteger czasPrzerwyValue = new AtomicInteger(500);
@@ -188,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
                     showCheckboxWarning("Najpierw wybierz scenariusz!");
                 }
                 else {
+                    badany = badanyName.getText().toString();
                     startScenario(selectedScenario[0]);
                 }
             }
@@ -197,6 +200,8 @@ public class MainActivity extends AppCompatActivity {
     private void startScenario(String scenarioName) {
         Intent intent = new Intent(this, BoardActivity.class);
         intent.putExtra("SCENARIO_NAME", scenarioName.toLowerCase());
+        intent.putExtra("BADANY", badany);
+        intent.putExtra("OPERATOR", operator);
         startActivity(intent);
     }
 

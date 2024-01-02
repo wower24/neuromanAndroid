@@ -25,13 +25,13 @@ import java.util.Map;
 public class BoardView extends View {
     private Scenario scenario;
     private Context context;
+    private String badany;
     private float scaleX;
     private float scaleY;
     private Paint paint = new Paint();
 
     private Map<String, Drawable> drawableCache = new HashMap<>();
     StringBuilder xmlBuilder = new StringBuilder();
-    private List<Element> elementsToAdd = new ArrayList<>();
 
     public BoardView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -41,6 +41,10 @@ public class BoardView extends View {
     public void setScenario(Scenario scenario) {
         this.scenario = scenario;
         invalidate();
+    }
+
+    public void setBadany(String badany) {
+        this.badany = badany;
     }
 
     @Override
@@ -178,7 +182,8 @@ public class BoardView extends View {
             int y = (int) event.getY();
 
             Board board = scenario.getCurrentBoard();
-            for (Element element : board.getElement()) {
+            List<Element> elementsCopy = new ArrayList<>(board.getElement());
+            for (Element element : elementsCopy) {
                 ElementState state = element.getState().get(element.getCurrentStateIndex());
 
                 if(scenario.getName().equals("test9p")) {
@@ -235,8 +240,8 @@ public class BoardView extends View {
                 }
             }
 
-            if(elementsToAdd.size()>0) {
-                board.getElement().addAll(elementsToAdd);
+            if(board.getElementsToAdd().size()>0) {
+                board.getElement().addAll(board.getElementsToAdd());
                 invalidate();
             }
         }
@@ -256,13 +261,15 @@ public class BoardView extends View {
                     int centerYCurrent = state.getLocY() + state.getHeight() / 2;
 
                     Element line = addLineElement(centerXLastClicked, centerYLastClicked, centerXCurrent, centerYCurrent);
-                        elementsToAdd.add(0, line);
+                        currentBoard.getElementsToAdd().add(0, line);
 
                 } else {
                     Element element = currentBoard.getElementByID(action.getElementID());
-                    element.setCurrentStateID(action.getStateID());
+                    if(element != null) {
+                        element.setCurrentStateID(action.getStateID());
+                        updateElement(element);
+                    }
                     //Log.d("SAME STATE", currentBoard.getName() + ":" + element.getElementID() + ":" + element.getCurrentState().getStateID());
-                    updateElement(element);
                 }
             }
     }
@@ -336,6 +343,7 @@ public class BoardView extends View {
         for(Element el: scenario.getCurrentBoard().getClickedElements()) {
             clickedString += (el.elementID + " ");
         }
+        /*
         Log.d("CLICKING WRAPPED", clickedString);
         String conditionString = "";
 
@@ -351,12 +359,14 @@ public class BoardView extends View {
             Log.d("RESULT", "FAILED :(:(:(:(:(");
         }
         scenario.getCurrentBoard().getClickedElements().clear();
+        */
         String boardStateXml = serializeBoardState(scenario.getCurrentBoard());
-        saveBoardStateToFile(boardStateXml, "boardState.xml");
-        if(scenario.currentBoardIndex < scenario.getBoard().size() - 1) {
+        scenario.getCurrentBoard().getClickedElements().clear();
+        if(scenario.currentBoardIndex < scenario.getBoard().size() - 2) {
             scenario.currentBoardIndex++;
             invalidate();
         } else {
+            saveBoardStateToFile(boardStateXml, badany + "_" + scenario.getName() + ".xml");
             Context context = getContext();
             Intent intent = new Intent(context, MainActivity.class);
             context.startActivity(intent);
@@ -387,30 +397,34 @@ public class BoardView extends View {
         return line;
     }
 
-
     private String serializeBoardState(Board board) {
-        xmlBuilder.append("<board>\n");
-        xmlBuilder.append("\t<name>").append(board.getName()).append("</name>\n");
-
-        for (Element element : board.getElement()) {
-            xmlBuilder.append("\t<element>\n");
-            xmlBuilder.append("\t\t<elementID>").append(element.getElementID()).append("</elementID>\n");
-            // Assume each element has a final state to serialize
-            ElementState finalState = element.getCurrentState();
-            xmlBuilder.append("\t\t<state>\n");
-            // Add state details (locX, locY, width, height, source, etc.)
-            xmlBuilder.append("\t\t\t<stateID>").append(finalState.getStateID()).append("</stateID>\n");
-            // ... (other state details)
-            xmlBuilder.append("\t\t</state>\n");
-            xmlBuilder.append("\t</element>\n");
+        if(xmlBuilder.length() == 0) {
+            xmlBuilder.append("<test>\n");
+            xmlBuilder.append("\t<scenario>").append(scenario.getName()).append("</scenario>\n");
+            xmlBuilder.append("\t<patient>").append(badany).append("</patient>\n");
         }
 
-        xmlBuilder.append("</board>\n");
+        xmlBuilder.append("\t<board>\n");
+        xmlBuilder.append("\t\t<name>").append(board.getName()).append("</name>\n");
+
+        boolean isCorrect = board.isCorrect();
+        String result;
+
+        if(isCorrect) {
+            result = "1";
+        } else {
+            result = "0";
+        }
+
+        xmlBuilder.append("\t\t<result>").append(result).append("</result>\n");
+
+        xmlBuilder.append("\t</board>\n");
         return xmlBuilder.toString();
     }
 
     private void saveBoardStateToFile(String boardStateXml, String fileName) {
         try {
+            boardStateXml += ("</test>");
             FileOutputStream fos = context.openFileOutput(fileName, Context.MODE_APPEND);
             fos.write(boardStateXml.getBytes());
             fos.close();
