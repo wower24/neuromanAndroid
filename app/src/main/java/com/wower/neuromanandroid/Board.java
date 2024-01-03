@@ -102,6 +102,13 @@ public class Board {
             return true;
         } else if (!evaluate.getRequired().isEmpty() && clickedElements.isEmpty()) {
             return false;
+        } else if(name.contains("zegar")) {
+            if(clickedElements.get(1).getElementID().equals("godz11")
+                    && clickedElements.get(2).getElementID().equals("min2")) {
+                return true;
+            } else {
+                return false;
+            }
         } else if(!evaluate.getRequiredOrdered().isEmpty()) {
             clickedElements = clickedElements.stream().distinct().collect(Collectors.toList());
             return listsEqual(clickedElements, evaluate.getRequiredOrdered());
