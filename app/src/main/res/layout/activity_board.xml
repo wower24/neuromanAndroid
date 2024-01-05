@@ -15,6 +15,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <ImageView
+            android:id="@+id/pointer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/pointer"
+            android:visibility="invisible" />
+
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -71,7 +71,7 @@ public class Board {
      */
     public void resetBoard() {
         List<Element> elementsToAddCopy = new ArrayList<>(elementsToAdd);
-
+        clickedElements = new ArrayList<>();
         // Clear elementsToAdd
         elementsToAdd.clear();
 

@@ -4,12 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 public class BoardActivity extends AppCompatActivity {
-
+    ImageView pointer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,5 +32,16 @@ public class BoardActivity extends AppCompatActivity {
         } catch(IOException e) {
             e.printStackTrace();
         }
+        pointer = findViewById(R.id.pointer);
+    }
+
+    public void movePointer(float x, float y) {
+        pointer.setVisibility(View.VISIBLE);
+        pointer.setX(x - (pointer.getWidth() / 2));
+        pointer.setY(y - (pointer.getHeight() / 2));
+    }
+
+    public void hidePointer() {
+        pointer.setVisibility(View.INVISIBLE);
     }
 }
