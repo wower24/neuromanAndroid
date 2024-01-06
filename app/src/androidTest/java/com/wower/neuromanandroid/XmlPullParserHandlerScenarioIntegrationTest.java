@@ -1,6 +1,8 @@
 package com.wower.neuromanandroid;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -72,5 +74,19 @@ public class XmlPullParserHandlerScenarioIntegrationTest {
         assertEquals(1500, state2.getDuration());
 
         assertEquals(0, state2.getActions().size());
+    }
+
+    @Test
+    public void testEmptyScenarioParsing() throws Exception {
+        // Arrange
+        InputStream is = InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("empty_scenario.xml");
+
+        // Act
+        XmlPullParserHandlerScenario parser = new XmlPullParserHandlerScenario();
+        Scenario scenario = parser.parse(is);
+
+        // Assert
+        assertNotNull("Scenario object should not be null", scenario);
+        assertTrue("Scenario should have no boards", scenario.getBoard().isEmpty());
     }
 }
