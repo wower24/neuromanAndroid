@@ -1,0 +1,56 @@
+<scenario>
+    <name>Test Scenario</name>
+    <board>
+        <name>Board 1</name>
+        <element>
+            <elementID>element1</elementID>
+            <state>
+                <stateID>state1</stateID>
+                <locX>100</locX>
+                <locY>200</locY>
+                <width>50</width>
+                <height>50</height>
+                <source>img:file=image1.png</source>
+                <fgcolor>255,0,0</fgcolor>
+                <clickOnEnd>1</clickOnEnd>
+                <autoClick>0</autoClick>
+                <duration>1000</duration>
+            </state>
+            <action>
+                <elementID>element2</elementID>
+                <stateID>state2</stateID>
+            </action>
+        </element>
+        <evaluate>
+            <requiredLogic>AND</requiredLogic>
+            <required>
+                <requiredCondition>
+                    <elementID>element1</elementID>
+                </requiredCondition>
+            </required>
+            <requiredOrdered>
+                <requiredOrderedCondition>
+                    <elementID>element1</elementID>
+                </requiredOrderedCondition>
+            </requiredOrdered>
+        </evaluate>
+    </board>
+    <board>
+        <name>Board 2</name>
+        <element>
+            <elementID>element2</elementID>
+            <state>
+                <stateID>state2</stateID>
+                <locX>150</locX>
+                <locY>250</locY>
+                <width>60</width>
+                <height>60</height>
+                <source>img:file=image2.png</source>
+                <fgcolor>0,255,0</fgcolor>
+                <clickOnEnd>1</clickOnEnd>
+                <autoClick>0</autoClick>
+                <duration>1500</duration>
+            </state>
+        </element>
+    </board>
+</scenario>
