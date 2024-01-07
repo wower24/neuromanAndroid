@@ -38,6 +38,16 @@ public class BoardView extends View {
         this.context = context;
     }
 
+    public interface BoardViewListener {
+        void onScenarioCompleted();
+    }
+
+    private BoardViewListener listener;
+
+    public void setBoardViewListener(BoardViewListener listener) {
+        this.listener = listener;
+    }
+
     public void setScenario(Scenario scenario) {
         this.scenario = scenario;
         invalidate();
@@ -367,9 +377,10 @@ public class BoardView extends View {
             invalidate();
         } else {
             saveBoardStateToFile(boardStateXml, badany + "_" + scenario.getName() + ".xml");
-            Context context = getContext();
-            Intent intent = new Intent(context, MainActivity.class);
-            context.startActivity(intent);
+            listener.onScenarioCompleted();
+            //Context context = getContext();
+            //Intent intent = new Intent(context, MainActivity.class);
+            //context.startActivity(intent);
         }
     }
 

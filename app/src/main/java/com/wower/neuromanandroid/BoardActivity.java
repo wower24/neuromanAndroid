@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class BoardActivity extends AppCompatActivity {
+public class BoardActivity extends AppCompatActivity implements BoardView.BoardViewListener {
     ImageView pointer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +33,10 @@ public class BoardActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         pointer = findViewById(R.id.pointer);
+    }
+    @Override
+    public void onScenarioCompleted() {
+        finish();
     }
 
     public void movePointer(float x, float y) {
