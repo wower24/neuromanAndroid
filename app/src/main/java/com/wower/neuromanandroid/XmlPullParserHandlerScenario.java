@@ -151,7 +151,7 @@ public class XmlPullParserHandlerScenario {
         return scenario;
     }
 
-    private String transformSourceString(String source) {
+    String transformSourceString(String source) {
         source = source.replaceFirst("img:file=", "");
         // Step 1: Prepend "img_" if not present
         if (!source.startsWith("img_")) {
