@@ -16,6 +16,11 @@ public class Element {
 
     public Element() {}
 
+    public Element(String elementID) {
+        super();
+        this.elementID = elementID;
+    }
+
     public Element(String elementID, List<ElementState> states) {
         super();
         this.elementID = elementID;

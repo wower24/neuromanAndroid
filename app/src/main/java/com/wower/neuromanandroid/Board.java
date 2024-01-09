@@ -118,7 +118,7 @@ public class Board {
         }
     }
 
-    private boolean listsEqual(List<Element> list1, List<Condition> list2) {
+    boolean listsEqual(List<Element> list1, List<Condition> list2) {
         if(list1.size() != list2.size()) return false;
 
         for(int i = 0; i < list1.size(); i++) {
@@ -129,7 +129,7 @@ public class Board {
         return true;
     }
 
-    private boolean containsAllConditions(List<Element> clickedElements, List<Condition> required) {
+    boolean containsAllConditions(List<Element> clickedElements, List<Condition> required) {
         if(clickedElements.size() != required.size()) {
             return false;
         }
@@ -138,5 +138,9 @@ public class Board {
         List<String> requiredIDs = required.stream().map(Condition::getElementID).collect(Collectors.toList());
 
         return clickedIDs.containsAll(requiredIDs);
+    }
+
+    public void setClickedElements(List<Element> clickedElements) {
+        this.clickedElements = clickedElements;
     }
 }

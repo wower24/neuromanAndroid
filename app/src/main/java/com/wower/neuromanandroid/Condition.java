@@ -6,6 +6,9 @@ public class Condition {
     public Condition() {
         this.elementID = "ready";
     }
+    public Condition(String elementID) {
+        this.elementID = elementID;
+    }
 
     public void setElementID(String elementID) {
         this.elementID = elementID;

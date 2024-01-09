@@ -19,4 +19,8 @@ public class Evaluate {
     public List<Condition> getRequiredOrdered() {
         return requiredOrdered;
     }
+
+    public void setRequired(List<Condition> required) {
+        this.required = required;
+    }
 }
