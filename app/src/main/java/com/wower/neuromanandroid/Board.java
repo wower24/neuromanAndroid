@@ -98,7 +98,10 @@ public class Board {
         if (evaluate.getRequired() == null) {
             return true;
         }
-        if(evaluate.getRequired().isEmpty() && clickedElements.isEmpty()) {
+
+        if(name.contains("07_") || name.contains("08_") || name.contains("11_") || name.contains("16_skojarzenia")) {
+            return false;
+        } else if(evaluate.getRequired().isEmpty() && clickedElements.isEmpty()) {
             return true;
         } else if (!evaluate.getRequired().isEmpty() && clickedElements.isEmpty()) {
             return false;
