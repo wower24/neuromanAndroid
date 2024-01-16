@@ -17,7 +17,6 @@ import androidx.core.content.ContextCompat;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,67 +71,57 @@ public class BoardView extends View {
     private void drawBoard(Board board, Canvas canvas) {
         for (Element element : board.getElement()) {
             //Log.d("ELEMENT ID", "Drawing: " +  element.getElementID());
-            if ("frame".equals(element.getElementID())) {
-                drawState(element.getState().get(0), canvas);
+            List<ElementState> states = element.getState();
+            if (element.getCurrentStateIndex() < states.size()) {
+                ElementState state = element.getCurrentState();
+                drawState(state, canvas);
             } else {
-                // For other elements, use the existing logic
-                List<ElementState> states = element.getState();
-                if (element.getCurrentStateIndex() < states.size()) {
-                    ElementState state = element.getCurrentState();
-                    drawState(state, canvas);
-                } else {
-                    Log.e("BoardView", "Invalid state index for element: " + element.getElementID());
-                }
+                Log.e("BoardView", "Invalid state index for element: " + element.getElementID());
             }
         }
     }
 
     private void drawState(ElementState state, Canvas canvas) {
-            paint.reset();
-            paint.setStyle(Paint.Style.FILL);
-            if (state.getFgcolor() != null) {
-                paint.setColor(parseColorString(state.getFgcolor()));
-            } else {
-                paint.setColor(Color.parseColor("#FFFFFF"));
-            }
-
         int x = state.getLocX();
         int y =state.getLocY();
         int width = state.getWidth();
         int height = state.getHeight();
 
-        if (state.getSource() != null && state.getSource().startsWith("img_")) {
-            x = (int) (x * scaleX);
-            y = (int) (y * scaleX);
-            if(state.getSource().contains("ff6024892361")){
-                y += 80;
-            }
-            width = (int) (width * scaleX);
-            height = (int) (height * scaleX);
+        if(state.getSource() != null) {
+            if (state.getSource().startsWith("img_")) {
+                x = (int) (x * scaleX);
+                y = (int) (y * scaleX);
+                if(state.getSource().contains("ff6024892361")){
+                    y += 80;
+                }
+                width = (int) (width * scaleX);
+                height = (int) (height * scaleX);
 
-            //String filename = state.getSource();
-            //Log.d("Drawable Name", "Resource name: " + filename);
-            Drawable drawable = getDrawable(state.getSource());
-            if (drawable != null) {
-                drawable.setBounds(x, y, x + width, y + height);
-                drawable.draw(canvas);
-            }
-        } else {
-            x = (int) (x * scaleX);
-            y = (int) (y * scaleY);
-            width = (int) (width * scaleX);
-            height = (int) (height * scaleY);
+                Drawable drawable = getDrawable(state.getSource());
+                if (drawable != null) {
+                    drawable.setBounds(x, y, x + width, y + height);
+                    drawable.draw(canvas);
+                }
+            } else {
+                x = (int) (x * scaleX);
+                y = (int) (y * scaleY);
+                width = (int) (width * scaleX);
+                height = (int) (height * scaleY);
 
-            if(state.getSource() != null) {
+                paint.reset();
+                paint.setStyle(Paint.Style.FILL);
+
                 if (state.getSource().contains("rect")) {
+                    paint.setColor(Color.parseColor("#FFFFFF"));
                     canvas.drawRect(x, y, x + width, y + height, paint);
                 } else if (state.getSource().contains("circle")) {
-                    if(state.getStateID().equals("2")) {
+                    if(state.getFgcolor() != null) {
+                        paint.setColor(parseColorString(state.getFgcolor()));
+                    } else {
                         paint.setColor(Color.parseColor("#FFFFFF"));
                     }
                     canvas.drawCircle(x + width / 2f, y + height / 2f, Math.min(width, height) / 2f, paint);
-                } else if (state.getSource().contains("line") && scenario.getCurrentBoard().getName().contains("łączenie")) {
-                    paint.setColor(Color.parseColor("#000000"));
+                } else if (state.getSource().contains("line")) {
                     paint.setStrokeWidth(3);
                     canvas.drawLine(state.getLocX(), state.getLocY(),
                             state.getLocX() + state.getWidth(), state.getLocY() + state.getHeight(), paint);
@@ -144,9 +133,7 @@ public class BoardView extends View {
                     } else {
                         text = source.substring(source.indexOf(":t=") + 3);
                     }
-                    text = text.split(";")[0]; // Extract the text
-                    //Log.d("TEXT CHECK", text);
-                    paint.setColor(Color.parseColor("#000000"));
+                    text = text.split(";")[0];
                     float textSize = paint.getTextSize();
                     if (source.contains("height=")) {
                         String heightStr = source.split("height=")[1];
@@ -155,7 +142,6 @@ public class BoardView extends View {
                         textSize = textHeight * scaleX;
                     }
 
-                    // Fit text in the specified width
                     paint.setTextSize(textSize);
                     paint.setTextAlign(Paint.Align.LEFT);
                     float textWidth = paint.measureText(text);
@@ -164,8 +150,6 @@ public class BoardView extends View {
                         paint.setTextSize(textSize);
                         textWidth = paint.measureText(text);
                     }
-                    //Log.d("XY", "X: " + x + " Y+TS: " + (y + textSize));
-                    // Draw the text
                     canvas.drawText(text, x, (y + textSize)/5, paint);
                 }
             }
@@ -222,17 +206,16 @@ public class BoardView extends View {
                             }
                             changeStates(board, element);
                         } else if (isInsideElement(x, y, state) && element.getState().size() > 1) {
-                            //Log.d("TOUCHED SOMETHING", board.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
                             if(!element.elementID.equals("kwadrat") && !element.elementID.contains("pole") && !element.elementID.endsWith("ścianka") && !element.elementID.endsWith("scianka")) {
                                 board.getClickedElements().add(element);
                             }
 
-                            changeStates(board, element); // Toggle the state of the element
-                            //Log.d("CHANGED SOMETHING", board.getName() + ":" + element.getElementID() + ": " + element.getCurrentState().getStateID());
+                            changeStates(board, element);
                         }
+                        return true;
                     }
 
-                    if(element.getElementID().equals("przycisk_gotów_nieaktywny") && isInsideElement(x, y, state) && isInsideElement(x, y, state)) {
+                    if(element.getElementID().equals("przycisk_gotów_nieaktywny") && isInsideElement(x, y, state)) {
                         changeStates(board, element);
                         updateElement(board.getElementByID("przycisk_gotów_aktywny"));
                         board.setActive(true);
@@ -279,7 +262,6 @@ public class BoardView extends View {
                         element.setCurrentStateID(action.getStateID());
                         updateElement(element);
                     }
-                    //Log.d("SAME STATE", currentBoard.getName() + ":" + element.getElementID() + ":" + element.getCurrentState().getStateID());
                 }
             }
     }
@@ -301,40 +283,36 @@ public class BoardView extends View {
                     continue;
                 }
 
-                if (!element.isStateToggled()) { // Check if the state has been toggled for non-frame elements
-                    return; // At least one element (other than frame) is still in its initial state or not toggled
+                if (!element.isStateToggled()) {
+                    return;
                 }
             }
-            Context context = getContext();
-            Intent intent = new Intent(context, MainActivity.class);
-            context.startActivity(intent);
+            listener.onScenarioCompleted();
         }
     }
 
     private boolean isInsideElement(int x, int y, ElementState state) {
-        // Apply scaling to the element's dimensions and position
         int scaledX = state.getLocX();
         int scaledY = state.getLocY();
         int scaledWidth = state.getWidth();
         int scaledHeight = state.getHeight();
 
-        if(scenario.getName().equals("test9p")) {
-            //for circle - test9p
+        if(state.getSource().contains("circle")) {
             scaledX *= scaleX;
             scaledY *= scaleY;
             scaledWidth *= scaleX;
             scaledHeight *= scaleY;
-        } else if(scenario.getName().equals("MOCA")) {
+            int centerX = scaledX + scaledWidth / 2;
+            int centerY = scaledY + scaledHeight / 2;
+            int radius = Math.min(scaledWidth, scaledHeight) / 2;
+            return Math.sqrt(Math.pow(centerX - x, 2) + Math.pow(centerY - y, 2)) <= radius;
+        } else {
             scaledX *= scaleX;
             scaledY *= scaleX;
             scaledWidth *= scaleX;
             scaledHeight *= scaleX;
             return x >= scaledX && x <= (scaledX + scaledWidth) && y >= scaledY && y <= (scaledY + scaledHeight);
         }
-            int centerX = scaledX + scaledWidth / 2;
-            int centerY = scaledY + scaledHeight / 2;
-            int radius = Math.min(scaledWidth, scaledHeight) / 2;
-            return Math.sqrt(Math.pow(centerX - x, 2) + Math.pow(centerY - y, 2)) <= radius;
     }
 
     private void calculateScalingFactors(Element frame) {
@@ -349,27 +327,6 @@ public class BoardView extends View {
     }
 
     public void goToNextBoard() {
-        String clickedString = "";
-        for(Element el: scenario.getCurrentBoard().getClickedElements()) {
-            clickedString += (el.elementID + " ");
-        }
-        /*
-        Log.d("CLICKING WRAPPED", clickedString);
-        String conditionString = "";
-
-        for (Condition condition : scenario.getCurrentBoard().getEvaluate().getRequired()) {
-            conditionString += condition.getElementID() + " ";
-        }
-        Log.d("EXPECTED", conditionString);
-
-        boolean result = scenario.getCurrentBoard().isCorrect();
-        if (result) {
-            Log.d("RESULT", "PASSED :):):):):)");
-        } else {
-            Log.d("RESULT", "FAILED :(:(:(:(:(");
-        }
-        scenario.getCurrentBoard().getClickedElements().clear();
-        */
         String boardStateXml = serializeBoardState(scenario.getCurrentBoard());
         scenario.getCurrentBoard().getClickedElements().clear();
         if(scenario.currentBoardIndex < scenario.getBoard().size() - 2) {
@@ -378,9 +335,6 @@ public class BoardView extends View {
         } else {
             saveBoardStateToFile(boardStateXml, badany + "_" + scenario.getName() + ".xml");
             listener.onScenarioCompleted();
-            //Context context = getContext();
-            //Intent intent = new Intent(context, MainActivity.class);
-            //context.startActivity(intent);
         }
     }
 

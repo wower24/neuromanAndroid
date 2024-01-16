@@ -64,7 +64,7 @@ public class Element {
 
     public void toggleState() {
             if(this.getState().size() == 2) {
-                setCurrentStateID("2"); // Toggle between 0 and 1
+                setCurrentStateID("2");
                 stateToggled = true;
             }
     }
