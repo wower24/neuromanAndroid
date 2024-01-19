@@ -99,9 +99,7 @@ public class Board {
             return true;
         }
 
-        if(name.contains("07_") || name.contains("08_") || name.contains("11_") || name.contains("16_skojarzenia")) {
-            return false;
-        } else if(evaluate.getRequired().isEmpty() && clickedElements.isEmpty()) {
+        if(evaluate.getRequired().isEmpty() && clickedElements.isEmpty()) {
             return true;
         } else if (!evaluate.getRequired().isEmpty() && clickedElements.isEmpty()) {
             return false;

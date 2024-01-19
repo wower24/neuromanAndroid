@@ -1,11 +1,15 @@
 package com.wower.neuromanandroid;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -14,11 +18,16 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class BoardView extends View {
@@ -88,14 +97,14 @@ public class BoardView extends View {
         int height = state.getHeight();
 
         if(state.getSource() != null) {
+            x = (int) (x * scaleX);
+            y = (int) (y * scaleX);
+            width = (int) (width * scaleX);
+            height = (int) (height * scaleX);
             if (state.getSource().startsWith("img_")) {
-                x = (int) (x * scaleX);
-                y = (int) (y * scaleX);
                 if(state.getSource().contains("ff6024892361")){
                     y += 80;
                 }
-                width = (int) (width * scaleX);
-                height = (int) (height * scaleX);
 
                 Drawable drawable = getDrawable(state.getSource());
                 if (drawable != null) {
@@ -103,11 +112,6 @@ public class BoardView extends View {
                     drawable.draw(canvas);
                 }
             } else {
-                x = (int) (x * scaleX);
-                y = (int) (y * scaleY);
-                width = (int) (width * scaleX);
-                height = (int) (height * scaleY);
-
                 paint.reset();
                 paint.setStyle(Paint.Style.FILL);
 
@@ -150,7 +154,7 @@ public class BoardView extends View {
                         paint.setTextSize(textSize);
                         textWidth = paint.measureText(text);
                     }
-                    canvas.drawText(text, x, (y + textSize)/5, paint);
+                    canvas.drawText(text, x, (y + textSize), paint);
                 }
             }
         }
@@ -179,9 +183,9 @@ public class BoardView extends View {
             List<Element> elementsCopy = new ArrayList<>(board.getElement());
             for (Element element : elementsCopy) {
                 ElementState state = element.getState().get(element.getCurrentStateIndex());
-
+                String elementID = element.getElementID();
                 if(scenario.getName().equals("test9p")) {
-                    if (!element.getElementID().equals("frame")) {
+                    if (!elementID.equals("frame")) {
                         if (isInsideElement(x, y, state) && element.getState().size() > 1) {
                             element.toggleState(); // Toggle the state of the element
                             invalidate(); // Redraw the view
@@ -192,7 +196,7 @@ public class BoardView extends View {
                 }
 
                 if(scenario.getName().equals("MOCA")) {
-                    if (element.getElementID().equals("przycisk_dalej") && isInsideElement(x, y, state)) {
+                    if (elementID.equals("przycisk_dalej") && isInsideElement(x, y, state)) {
                         goToNextBoard();
                         return true;
                     }
@@ -200,19 +204,15 @@ public class BoardView extends View {
                     }
 
                     if(board.isActive()) {
-                        if (board.getName().equals("03_łączenie") && (isInsideElement(x, y, state) || element.getCurrentState().getAutoCLick() == 1)) {
-                            if(element.getElementID().contains("koło")) {
-                                board.getClickedElements().add(element);
-                            }
-                            changeStates(board, element);
-                        } else if (isInsideElement(x, y, state) && element.getState().size() > 1) {
-                            if(!element.elementID.equals("kwadrat") && !element.elementID.contains("pole") && !element.elementID.endsWith("ścianka") && !element.elementID.endsWith("scianka")) {
+                        if ((isInsideElement(x, y, state) && element.getState().size() > 1)
+                                || element.getCurrentState().getAutoCLick() == 1) {
+                            if((board.getName().equals("03_łączenie") && elementID.contains("koło")) || (!elementID.equals("kwadrat") && !elementID.contains("pole")
+                                    && !elementID.endsWith("ścianka") && !elementID.endsWith("scianka"))) {
                                 board.getClickedElements().add(element);
                             }
 
                             changeStates(board, element);
                         }
-                        return true;
                     }
 
                     if(element.getElementID().equals("przycisk_gotów_nieaktywny") && isInsideElement(x, y, state)) {
@@ -333,7 +333,7 @@ public class BoardView extends View {
             scenario.currentBoardIndex++;
             invalidate();
         } else {
-            saveBoardStateToFile(boardStateXml, badany + "_" + scenario.getName() + ".xml");
+            saveBoardStateToFile(boardStateXml, badany + "_" + scenario.getName());
             listener.onScenarioCompleted();
         }
     }
@@ -368,32 +368,55 @@ public class BoardView extends View {
             xmlBuilder.append("\t<scenario>").append(scenario.getName()).append("</scenario>\n");
             xmlBuilder.append("\t<patient>").append(badany).append("</patient>\n");
         }
+        String name = board.getName();
+        if(!name.contains("07_") && !name.contains("08_") && !name.contains("11_") && !name.contains("16_skojarzenia")) {
+            xmlBuilder.append("\t<board>\n");
+            xmlBuilder.append("\t\t<name>").append(name).append("</name>\n");
 
-        xmlBuilder.append("\t<board>\n");
-        xmlBuilder.append("\t\t<name>").append(board.getName()).append("</name>\n");
 
-        boolean isCorrect = board.isCorrect();
-        String result;
+            boolean isCorrect = board.isCorrect();
+            String result;
 
-        if(isCorrect) {
-            result = "1";
-        } else {
-            result = "0";
+            if (isCorrect) {
+                result = "1";
+            } else {
+                result = "0";
+            }
+
+            xmlBuilder.append("\t\t<result>").append(result).append("</result>\n");
+
+            xmlBuilder.append("\t</board>\n");
         }
-
-        xmlBuilder.append("\t\t<result>").append(result).append("</result>\n");
-
-        xmlBuilder.append("\t</board>\n");
         return xmlBuilder.toString();
     }
 
     private void saveBoardStateToFile(String boardStateXml, String fileName) {
         try {
-            boardStateXml += ("</test>");
-            FileOutputStream fos = context.openFileOutput(fileName, Context.MODE_APPEND);
-            fos.write(boardStateXml.getBytes());
-            fos.close();
-        } catch (IOException e) {
+            // Append closing tag to the XML content
+            boardStateXml += "</test>";
+
+            // Format the current date and time
+            String currentDateAndTime = new SimpleDateFormat("ddMMyyyy_HHmm",
+                    Locale.getDefault()).format(new Date());
+
+            // Prepare the file name with date and time
+            String newFileName = fileName + "_" + currentDateAndTime;
+
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, newFileName);
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+
+            // Get the URI to the file in the Downloads directory
+            Uri uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+
+            // Write to the file using a ContentResolver
+            try (OutputStream outputStream = context.getContentResolver().openOutputStream(uri)) {
+                outputStream.write(boardStateXml.getBytes());
+            } catch (IOException | NullPointerException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

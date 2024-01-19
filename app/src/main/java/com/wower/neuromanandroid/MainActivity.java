@@ -102,8 +102,10 @@ public class MainActivity extends AppCompatActivity {
         profilSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Profile selectedProfile = profiles.get(position);
-                updateValues(selectedProfile);
+                if (position < profiles.size()) {
+                    Profile selectedProfile = profiles.get(position);
+                    updateValues(selectedProfile);
+                }
             }
 
             @Override
