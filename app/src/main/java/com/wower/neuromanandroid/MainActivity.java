@@ -65,18 +65,18 @@ public class MainActivity extends AppCompatActivity {
             ArrayAdapter<String> profilAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, profileNames);
 
             setupOperatorSpinner(operatorAdapter);
-            setupProfilSpinner(profilAdapter, profiles);
+            //setupProfilSpinner(profilAdapter, profiles);
 
         } catch(IOException e) {
             e.printStackTrace();
         }
 
         setupScenariosListViewAndCheckbox();
-        setupCzasKlikaniaLayout();
-        setupCzasPrzerwyLayout();
-        setupWielkoscKursoraLayout();
-        setupUpperLeftCornerLayout();
-        setupLowerRightCornerLayout();
+        //setupCzasKlikaniaLayout();
+        //setupCzasPrzerwyLayout();
+        //setupWielkoscKursoraLayout();
+        //setupUpperLeftCornerLayout();
+        //setupLowerRightCornerLayout();
         setupFinishButton();
     }
 
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         operatorSpinner.setAdapter(operatorAdapter);
         setupSpinnerButtons(findViewById(R.id.operatorLayout), operatorAdapter, operatorSpinner);
     }
-
+    /*
     private void setupProfilSpinner(ArrayAdapter<String> profilAdapter, List<Profile> profiles) {
         View profilLayout = findViewById(R.id.profilLayout);
         TextView label = profilLayout.findViewById(R.id.layoutLabel);
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
         updateXYValueLayout(R.id.upperLeftCornerLayout, minX, minY);
         updateXYValueLayout(R.id.lowerRightCornerLayout, maxX, maxY);
     }
-
+*/
     private void updateValueLayout(int layoutId, AtomicInteger value) {
         View layout = findViewById(layoutId);
         TextView textView = layout.findViewById(R.id.numberText);
@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
         // Create and show the dialog
         builder.create().show();
     }
-
+/*
     private void setupCzasKlikaniaLayout() {
         setupValueLayout(
                 R.id.czasKlikaniaLayout,
@@ -324,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
         value.addAndGet(-increment);
         textView.setText(String.valueOf(value));
     }
-
+*/
     private void showInputDialog(final ArrayAdapter<String> adapter, final Spinner spinner) {
         final EditText inputText = new EditText(this);
         inputText.setHint("Wprowadź nazwę");

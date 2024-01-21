@@ -12,11 +12,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="110dp"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-        <!--BADANY BEGINS-->
+
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="wrap_content"
@@ -39,7 +38,6 @@
                 tools:layout_editor_absoluteX="140dp"
                 tools:layout_editor_absoluteY="100dp" />
         </LinearLayout>
-        <!--BADANY ENDS-->
 
         <include
             android:id="@+id/operatorLayout"
@@ -54,33 +52,33 @@
 
         <TextView
             android:layout_width="300dp"
-            android:layout_marginStart="40dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
             android:text="Scenariusze"
-            android:textSize="35dp"
-            android:textAlignment="center"/>
+            android:textAlignment="center"
+            android:textSize="35dp" />
 
         <ListView
-            android:layout_marginStart="40dp"
             android:id="@+id/scenariuszeListView"
-            android:background="@drawable/edit_text_background"
             android:layout_width="300dp"
-            android:layout_height="190dp" />
+            android:layout_height="100dp"
+            android:layout_marginStart="40dp"
+            android:background="@drawable/edit_text_background" />
 
         <Button
             android:id="@+id/startButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start scenariusza"
             android:layout_marginStart="47dp"
-            android:textSize="30dp"/>
+            android:text="Start scenariusza"
+            android:textSize="30dp" />
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="20dp"
-            android:layout_marginStart="5dp">
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/kalibracjaButton"
@@ -88,14 +86,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
                 android:text="Kalibracja"
-                android:textSize="30dp"/>
+                android:textSize="30dp" />
 
             <Button
                 android:id="@+id/koniecButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Koniec Badania"
-                android:textSize="30dp"/>
+                android:textSize="30dp" />
         </LinearLayout>
 
 
@@ -103,7 +101,7 @@
     <!--FIRST COLUMN ENDS-->
 
     <!--SECOND COLUMN BEGINS-->
-    <LinearLayout
+    <!-- <LinearLayout
         android:id="@+id/secondColumn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -171,7 +169,7 @@
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-    </LinearLayout>
+    </LinearLayout> -->
     <!--SECOND COLUMN ENDS-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -394,23 +394,14 @@ public class BoardView extends View {
         try {
             // Append closing tag to the XML content
             boardStateXml += "</test>";
-
-            // Format the current date and time
             String currentDateAndTime = new SimpleDateFormat("ddMMyyyy_HHmm",
                     Locale.getDefault()).format(new Date());
-
-            // Prepare the file name with date and time
             String newFileName = fileName + "_" + currentDateAndTime;
-
             ContentValues values = new ContentValues();
             values.put(MediaStore.MediaColumns.DISPLAY_NAME, newFileName);
             values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");
             values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
-
-            // Get the URI to the file in the Downloads directory
             Uri uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
-
-            // Write to the file using a ContentResolver
             try (OutputStream outputStream = context.getContentResolver().openOutputStream(uri)) {
                 outputStream.write(boardStateXml.getBytes());
             } catch (IOException | NullPointerException e) {
