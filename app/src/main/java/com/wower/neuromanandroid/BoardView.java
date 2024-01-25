@@ -2,7 +2,6 @@ package com.wower.neuromanandroid;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -18,8 +17,6 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
@@ -33,7 +30,7 @@ import java.util.Map;
 public class BoardView extends View {
     private Scenario scenario;
     private Context context;
-    private String badany;
+    private String patient;
     private float scaleX;
     private float scaleY;
     private Paint paint = new Paint();
@@ -41,16 +38,16 @@ public class BoardView extends View {
     private Map<String, Drawable> drawableCache = new HashMap<>();
     StringBuilder xmlBuilder = new StringBuilder();
 
-    public BoardView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        this.context = context;
-    }
-
     public interface BoardViewListener {
         void onScenarioCompleted();
     }
 
     private BoardViewListener listener;
+
+    public BoardView(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        this.context = context;
+    }
 
     public void setBoardViewListener(BoardViewListener listener) {
         this.listener = listener;
@@ -61,8 +58,8 @@ public class BoardView extends View {
         invalidate();
     }
 
-    public void setBadany(String badany) {
-        this.badany = badany;
+    public void setPatient(String patient) {
+        this.patient = patient;
     }
 
     @Override
@@ -333,7 +330,7 @@ public class BoardView extends View {
             scenario.currentBoardIndex++;
             invalidate();
         } else {
-            saveBoardStateToFile(boardStateXml, badany + "_" + scenario.getName());
+            saveBoardStateToFile(boardStateXml, patient + "_" + scenario.getName());
             listener.onScenarioCompleted();
         }
     }
@@ -366,7 +363,7 @@ public class BoardView extends View {
         if(xmlBuilder.length() == 0) {
             xmlBuilder.append("<test>\n");
             xmlBuilder.append("\t<scenario>").append(scenario.getName()).append("</scenario>\n");
-            xmlBuilder.append("\t<patient>").append(badany).append("</patient>\n");
+            xmlBuilder.append("\t<patient>").append(patient).append("</patient>\n");
         }
         String name = board.getName();
         if(!name.contains("07_") && !name.contains("08_") && !name.contains("11_") && !name.contains("16_skojarzenia")) {
@@ -402,6 +399,16 @@ public class BoardView extends View {
             values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");
             values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
             Uri uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+            try (OutputStream outputStream = context.getContentResolver().openOutputStream(uri)) {
+                outputStream.write(boardStateXml.getBytes());
+            } catch (IOException | NullPointerException e) {
+                e.printStackTrace();
+            }
+            values = new ContentValues();
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, newFileName + "XML");
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "text/xml");
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+            uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
             try (OutputStream outputStream = context.getContentResolver().openOutputStream(uri)) {
                 outputStream.write(boardStateXml.getBytes());
             } catch (IOException | NullPointerException e) {

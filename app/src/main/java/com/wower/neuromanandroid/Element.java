@@ -77,8 +77,4 @@ public class Element {
         return stateToggled;
     }
 
-    public String toString() {
-        return elementID;
-    }
-
 }

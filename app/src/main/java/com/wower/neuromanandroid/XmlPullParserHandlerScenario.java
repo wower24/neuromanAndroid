@@ -152,13 +152,13 @@ public class XmlPullParserHandlerScenario {
     }
 
     String transformSourceString(String source) {
+        source = source.toLowerCase();
         source = source.replaceFirst("img:file=", "");
         if (!source.startsWith("img_")) {
             source = "img_" + source;
         }
         source = source.replace("-", "_");
-        source = source.replaceAll("[^a-zA-Z0-9_]", "x");
-        source = source.toLowerCase();
+        source = source.replaceAll("[^a-z0-9_]", "x");
         source = source.replace("xpng", "");
         source = source.replace("xgif", "");
         return source;

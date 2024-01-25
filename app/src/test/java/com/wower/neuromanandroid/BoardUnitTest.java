@@ -12,7 +12,6 @@ public class BoardUnitTest {
     Board board = new Board();
     @Test
     public void testIsCorrect() {
-        Board board = new Board();
         Evaluate evaluate = new Evaluate();
         List<Condition> required = new ArrayList<>();
         List<Element> clickedElements = new ArrayList<>();

@@ -78,14 +78,11 @@ public class XmlPullParserHandlerScenarioIntegrationTest {
 
     @Test
     public void testEmptyScenarioParsing() throws Exception {
-        // Arrange
         InputStream is = InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("empty_scenario.xml");
 
-        // Act
         XmlPullParserHandlerScenario parser = new XmlPullParserHandlerScenario();
         Scenario scenario = parser.parse(is);
 
-        // Assert
         assertNotNull("Scenario object should not be null", scenario);
         assertTrue("Scenario should have no boards", scenario.getBoard().isEmpty());
     }

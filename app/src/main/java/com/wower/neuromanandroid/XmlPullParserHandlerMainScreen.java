@@ -13,8 +13,8 @@ import java.util.Map;
 
 public class XmlPullParserHandlerMainScreen {
     List<String> operatorNames = new ArrayList<>();
-    List<Profile> profiles = new ArrayList<>();
-    Profile profile;
+    //List<Profile> profiles = new ArrayList<>();
+    //Profile profile;
     String text;
 
     public Map<String, List<?>> parse(InputStream inputStream) {
@@ -32,18 +32,20 @@ public class XmlPullParserHandlerMainScreen {
                 String tagName = parser.getName();
 
                 switch(eventType) {
+                    /*
                     case XmlPullParser.START_TAG:
                         if (tagName.equalsIgnoreCase("profile")) {
                             profile = new Profile();
                         }
-                        break;
+                        break;*/
+
                     case XmlPullParser.TEXT:
                         text = parser.getText();
                         break;
                     case XmlPullParser.END_TAG:
                         if (tagName.equalsIgnoreCase("operator")) {
                             operatorNames.add(text);
-                        } else if (tagName.equalsIgnoreCase("profile")) {
+                        } /*else if (tagName.equalsIgnoreCase("profile")) {
                             profiles.add(profile);
                         } else if (tagName.equalsIgnoreCase("duration")) {
                             profile.setDuration(Integer.parseInt(text));
@@ -61,7 +63,7 @@ public class XmlPullParserHandlerMainScreen {
                             profile.setPatience(Integer.parseInt(text));
                         } else if (tagName.equalsIgnoreCase("radius")) {
                             profile.setRadius(Integer.parseInt(text));
-                        }
+                        }*/
                         break;
                     default:
                         break;
@@ -74,7 +76,7 @@ public class XmlPullParserHandlerMainScreen {
 
         Map<String, List<?>> result =  new HashMap<>();
         result.put("operatorNames", operatorNames);
-        result.put("profiles", profiles);
+        //result.put("profiles", profiles);
 
         return result;
     }

@@ -25,20 +25,20 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
-    String[] scenariuszeArray = {"MOCA", "test9p"};
-    String badany;
+    String[] scenarios = {"MOCA", "test9p"};
+    String patient;
     String operator;
-    AtomicInteger czasKlikaniaValue = new AtomicInteger(1100);
-    int czasKlikaniaIncrement = 100;
-    AtomicInteger czasPrzerwyValue = new AtomicInteger(500);
-    int czasPrzerwyIncrement = 100;
-    AtomicInteger wielkoscKursoraValue = new AtomicInteger(55);
-    int wielkoscKursoraIncrement = 5;
-    int cornerIncrement = 10;
-    AtomicInteger minX = new AtomicInteger(0);
-    AtomicInteger minY = new AtomicInteger(0);
-    AtomicInteger maxX = new AtomicInteger(100);
-    AtomicInteger maxY = new AtomicInteger(100);
+    //AtomicInteger czasKlikaniaValue = new AtomicInteger(1100);
+    //int czasKlikaniaIncrement = 100;
+    //AtomicInteger czasPrzerwyValue = new AtomicInteger(500);
+    //int czasPrzerwyIncrement = 100;
+    //AtomicInteger wielkoscKursoraValue = new AtomicInteger(55);
+    //int wielkoscKursoraIncrement = 5;
+    //int cornerIncrement = 10;
+    //AtomicInteger minX = new AtomicInteger(0);
+    //AtomicInteger minY = new AtomicInteger(0);
+    //AtomicInteger maxX = new AtomicInteger(100);
+    //AtomicInteger maxY = new AtomicInteger(100);
     int selectedPosition = -1;
 
     @Override
@@ -54,15 +54,15 @@ public class MainActivity extends AppCompatActivity {
 
             parsedLists = parser.parse(inputStream);
 
-            List<Profile> profiles = (List<Profile>)parsedLists.get("profiles");
-            List<String> profileNames = new ArrayList<>();
+            //List<Profile> profiles = (List<Profile>)parsedLists.get("profiles");
+            //List<String> profileNames = new ArrayList<>();
 
-            for(Profile profile: profiles) {
-                profileNames.add(profile.name);
-            }
+            //for(Profile profile: profiles) {
+              //  profileNames.add(profile.name);
+            //}
 
             ArrayAdapter<String> operatorAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, (List<String>)parsedLists.get("operatorNames"));
-            ArrayAdapter<String> profilAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, profileNames);
+            //ArrayAdapter<String> profilAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, profileNames);
 
             setupOperatorSpinner(operatorAdapter);
             //setupProfilSpinner(profilAdapter, profiles);
@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         //setupWielkoscKursoraLayout();
         //setupUpperLeftCornerLayout();
         //setupLowerRightCornerLayout();
+        setupCalibrationButton();
         setupFinishButton();
     }
 
@@ -130,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         updateXYValueLayout(R.id.upperLeftCornerLayout, minX, minY);
         updateXYValueLayout(R.id.lowerRightCornerLayout, maxX, maxY);
     }
-*/
+
     private void updateValueLayout(int layoutId, AtomicInteger value) {
         View layout = findViewById(layoutId);
         TextView textView = layout.findViewById(R.id.numberText);
@@ -144,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         TextView textViewY = layout.findViewById(R.id.numberYText);
         textViewY.setText(String.valueOf(valueY));
     }
-
+*/
     private void setupSpinnerButtons(View layout, final ArrayAdapter<String> adapter, final Spinner spinner) {
         Button button1 = layout.findViewById(R.id.layoutButton1);
         Button button2 = layout.findViewById(R.id.layoutButton2);
@@ -158,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         String selectedScenario[] = {null};
         CheckBox wykonanoCheckBox = findViewById(R.id.wykonanoCheckBox);
         EditText badanyName = findViewById(R.id.badany);
-        ArrayAdapter scenariuszeAdapter = new ArrayAdapter<String>(this, R.layout.listview, scenariuszeArray);
+        ArrayAdapter scenariuszeAdapter = new ArrayAdapter<String>(this, R.layout.listview, scenarios);
         ListView scenariuszeListView = findViewById(R.id.scenariuszeListView);
         scenariuszeListView.setAdapter(scenariuszeAdapter);
         scenariuszeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -192,9 +193,19 @@ public class MainActivity extends AppCompatActivity {
                     showCheckboxWarning("Najpierw wybierz scenariusz!");
                 }
                 else {
-                    badany = badanyName.getText().toString();
+                    patient = badanyName.getText().toString();
                     startScenario(selectedScenario[0]);
                 }
+            }
+        });
+    }
+
+    private void setupCalibrationButton() {
+        Button calibrationButton = findViewById(R.id.kalibracjaButton);
+        calibrationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startScenario("test9p");
             }
         });
     }
@@ -202,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
     private void startScenario(String scenarioName) {
         Intent intent = new Intent(this, BoardActivity.class);
         intent.putExtra("SCENARIO_NAME", scenarioName.toLowerCase());
-        intent.putExtra("BADANY", badany);
+        intent.putExtra("BADANY", patient);
         intent.putExtra("OPERATOR", operator);
         startActivity(intent);
     }

@@ -15,11 +15,12 @@ public class Evaluate {
     public List<Condition> getRequired() {
         return required;
     }
-
     public List<Condition> getRequiredOrdered() {
         return requiredOrdered;
     }
-
+    public void setRequiredOrdered(List<Condition> required) {
+        this.requiredOrdered = required;
+    }
     public void setRequired(List<Condition> required) {
         this.required = required;
     }

@@ -27,7 +27,8 @@ public class BoardActivity extends AppCompatActivity implements BoardView.BoardV
             Scenario scenario = parser.parse(inputStream);
             BoardView boardView = findViewById(R.id.boardView);
             boardView.setScenario(scenario);
-            boardView.setBadany(badany);
+            boardView.setPatient(badany);
+            boardView.setBoardViewListener(this);
 
         } catch(IOException e) {
             e.printStackTrace();
