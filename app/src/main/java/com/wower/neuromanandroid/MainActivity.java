@@ -23,24 +23,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
+/**
+ * Main activity class for the application.
+ * This class is responsible for the initial user interface where the user can select scenarios and other settings.
+ */
 public class MainActivity extends AppCompatActivity {
+    /**
+     * Array of scenario names available in the application.
+     */
     String[] scenarios = {"MOCA", "test9p"};
+    /**
+     * Strings to store the patient's name and the operator's name.
+     */
     String patient;
     String operator;
-    //AtomicInteger czasKlikaniaValue = new AtomicInteger(1100);
-    //int czasKlikaniaIncrement = 100;
-    //AtomicInteger czasPrzerwyValue = new AtomicInteger(500);
-    //int czasPrzerwyIncrement = 100;
-    //AtomicInteger wielkoscKursoraValue = new AtomicInteger(55);
-    //int wielkoscKursoraIncrement = 5;
-    //int cornerIncrement = 10;
-    //AtomicInteger minX = new AtomicInteger(0);
-    //AtomicInteger minY = new AtomicInteger(0);
-    //AtomicInteger maxX = new AtomicInteger(100);
-    //AtomicInteger maxY = new AtomicInteger(100);
+    /**
+     * Selected position in the list view.
+     */
     int selectedPosition = -1;
-
+    /**
+     * Called when the activity is starting.
+     * This is where most initialization should go: calling setContentView(int) to inflate
+     * the activity's UI, using findViewById(int) to programmatically interact with widgets in the UI,
+     * setting up various listeners, and initializing other components.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down
+     *                           then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     *                           Note: Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,33 +64,23 @@ public class MainActivity extends AppCompatActivity {
 
             parsedLists = parser.parse(inputStream);
 
-            //List<Profile> profiles = (List<Profile>)parsedLists.get("profiles");
-            //List<String> profileNames = new ArrayList<>();
-
-            //for(Profile profile: profiles) {
-              //  profileNames.add(profile.name);
-            //}
-
             ArrayAdapter<String> operatorAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, (List<String>)parsedLists.get("operatorNames"));
-            //ArrayAdapter<String> profilAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, profileNames);
 
             setupOperatorSpinner(operatorAdapter);
-            //setupProfilSpinner(profilAdapter, profiles);
 
         } catch(IOException e) {
             e.printStackTrace();
         }
 
         setupScenariosListViewAndCheckbox();
-        //setupCzasKlikaniaLayout();
-        //setupCzasPrzerwyLayout();
-        //setupWielkoscKursoraLayout();
-        //setupUpperLeftCornerLayout();
-        //setupLowerRightCornerLayout();
         setupCalibrationButton();
         setupFinishButton();
     }
-
+    /**
+     * Sets up the spinner for selecting the operator.
+     *
+     * @param operatorAdapter The adapter containing the list of operator names.
+     */
     private void setupOperatorSpinner(ArrayAdapter<String> operatorAdapter) {
         View operatorLayout = findViewById(R.id.operatorLayout);
         TextView label = operatorLayout.findViewById(R.id.layoutLabel);
@@ -90,62 +90,14 @@ public class MainActivity extends AppCompatActivity {
         operatorSpinner.setAdapter(operatorAdapter);
         setupSpinnerButtons(findViewById(R.id.operatorLayout), operatorAdapter, operatorSpinner);
     }
-    /*
-    private void setupProfilSpinner(ArrayAdapter<String> profilAdapter, List<Profile> profiles) {
-        View profilLayout = findViewById(R.id.profilLayout);
-        TextView label = profilLayout.findViewById(R.id.layoutLabel);
-        label.setText("Profil: ");
-        Spinner profilSpinner = profilLayout.findViewById(R.id.layoutSpinner);
-        profilAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        profilSpinner.setAdapter(profilAdapter);
-        setupSpinnerButtons(findViewById(R.id.profilLayout), profilAdapter, profilSpinner);
 
-        profilSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position < profiles.size()) {
-                    Profile selectedProfile = profiles.get(position);
-                    updateValues(selectedProfile);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-    }
-
-    void updateValues(Profile selectedProfile) {
-        czasKlikaniaValue.set(selectedProfile.getDuration());
-        czasPrzerwyValue.set(selectedProfile.getPatience());
-        wielkoscKursoraValue.set(selectedProfile.getRadius());
-        minX.set(selectedProfile.getMinX());
-        minY.set(selectedProfile.getMinY());
-        maxX.set(selectedProfile.getMaxX());
-        maxY.set(selectedProfile.getMaxY());
-
-        updateValueLayout(R.id.czasKlikaniaLayout, czasKlikaniaValue);
-        updateValueLayout(R.id.czasPrzerwyLayout, czasPrzerwyValue);
-        updateValueLayout(R.id.wielkoscKursoraLayout, wielkoscKursoraValue);
-        updateXYValueLayout(R.id.upperLeftCornerLayout, minX, minY);
-        updateXYValueLayout(R.id.lowerRightCornerLayout, maxX, maxY);
-    }
-
-    private void updateValueLayout(int layoutId, AtomicInteger value) {
-        View layout = findViewById(layoutId);
-        TextView textView = layout.findViewById(R.id.numberText);
-        textView.setText(String.valueOf(value));
-    }
-
-    private void updateXYValueLayout(int layoutId, AtomicInteger valueX, AtomicInteger valueY) {
-        View layout = findViewById(layoutId);
-        TextView textViewX = layout.findViewById(R.id.numberXText);
-        textViewX.setText(String.valueOf(valueX));
-        TextView textViewY = layout.findViewById(R.id.numberYText);
-        textViewY.setText(String.valueOf(valueY));
-    }
-*/
+    /**
+     * Sets up the buttons for the spinner.
+     *
+     * @param layout The layout containing the spinner and buttons.
+     * @param adapter The adapter for the spinner.
+     * @param spinner The spinner to which the buttons are associated.
+     */
     private void setupSpinnerButtons(View layout, final ArrayAdapter<String> adapter, final Spinner spinner) {
         Button button1 = layout.findViewById(R.id.layoutButton1);
         Button button2 = layout.findViewById(R.id.layoutButton2);
@@ -154,7 +106,9 @@ public class MainActivity extends AppCompatActivity {
 
         button2.setOnClickListener(v -> deleteSelectedItem(adapter, spinner));
     }
-
+    /**
+     * Sets up the list view and checkbox for scenario selection.
+     */
     private void setupScenariosListViewAndCheckbox() {
         String selectedScenario[] = {null};
         CheckBox wykonanoCheckBox = findViewById(R.id.wykonanoCheckBox);
@@ -199,7 +153,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    /**
+     * Sets up the calibration button.
+     */
     private void setupCalibrationButton() {
         Button calibrationButton = findViewById(R.id.kalibracjaButton);
         calibrationButton.setOnClickListener(new View.OnClickListener() {
@@ -209,7 +165,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    /**
+     * Starts a selected scenario.
+     *
+     * @param scenarioName The name of the scenario to start.
+     */
     private void startScenario(String scenarioName) {
         Intent intent = new Intent(this, BoardActivity.class);
         intent.putExtra("SCENARIO_NAME", scenarioName.toLowerCase());
@@ -217,7 +177,11 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("OPERATOR", operator);
         startActivity(intent);
     }
-
+    /**
+     * Displays a warning dialog with a specified message.
+     *
+     * @param message The message to be displayed in the warning dialog.
+     */
     private void showCheckboxWarning(String message) {
         // Display a warning dialog when the checkbox is not checked
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -230,112 +194,12 @@ public class MainActivity extends AppCompatActivity {
         // Create and show the dialog
         builder.create().show();
     }
-/*
-    private void setupCzasKlikaniaLayout() {
-        setupValueLayout(
-                R.id.czasKlikaniaLayout,
-                "Czas klikania (ms) ",
-                czasKlikaniaValue,
-                czasKlikaniaIncrement
-        );
-    }
-
-    private void setupCzasPrzerwyLayout() {
-        setupValueLayout(
-                R.id.czasPrzerwyLayout,
-                "Max czas przerwy (ms) ",
-                czasPrzerwyValue,
-                czasPrzerwyIncrement
-        );
-    }
-
-    private void setupWielkoscKursoraLayout() {
-        setupValueLayout(
-                R.id.wielkoscKursoraLayout,
-                "Wielkość kursora (px) ",
-                wielkoscKursoraValue,
-                wielkoscKursoraIncrement
-        );
-    }
-
-    private void setupUpperLeftCornerLayout() {
-        setupCornerLayout(
-                R.id.upperLeftCornerLayout,
-                "Lewy górny róg (%) ",
-                minX,
-                minY
-        );
-    }
-
-    private void setupLowerRightCornerLayout() {
-        setupCornerLayout(
-                R.id.lowerRightCornerLayout,
-                "Prawy dolny róg (%) ",
-                maxX,
-                maxY
-        );
-    }
-
-    private void setupValueLayout(int layoutId, String labelText, AtomicInteger value, int increment) {
-        View layout = findViewById(layoutId);
-        TextView label = layout.findViewById(R.id.layoutLabel);
-        label.setText(labelText);
-        TextView textView = layout.findViewById(R.id.numberText);
-        textView.setText(String.valueOf(value));
-
-        Button increaseButton = layout.findViewById(R.id.increaseButton);
-        Button decreaseButton = layout.findViewById(R.id.decreaseButton);
-
-        setupClickListener(value, increment, textView, increaseButton, decreaseButton);
-    }
-
-    private void setupCornerLayout(int layoutId, String labelText, AtomicInteger valueX, AtomicInteger valueY) {
-        View layout = findViewById(layoutId);
-        TextView label = layout.findViewById(R.id.layoutLabel);
-        label.setText(labelText);
-
-        TextView textViewX = layout.findViewById(R.id.numberXText);
-        TextView textViewY = layout.findViewById(R.id.numberYText);
-        textViewX.setText(String.valueOf(valueX));
-        textViewY.setText(String.valueOf(valueY));
-
-        Button increaseXButton = layout.findViewById(R.id.increaseXButton);
-        Button decreaseXButton = layout.findViewById(R.id.decreaseXButton);
-        Button increaseYButton = layout.findViewById(R.id.increaseYButton);
-        Button decreaseYButton = layout.findViewById(R.id.decreaseYButton);
-
-        setupClickListener(valueX, cornerIncrement, textViewX, increaseXButton, decreaseXButton);
-        setupClickListener(valueY, cornerIncrement, textViewY, increaseYButton, decreaseYButton);
-    }
-
-    private void setupClickListener(AtomicInteger value, int increment, TextView textView, Button increaseButton, Button decreaseButton) {
-        increaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                increaseValueAndSetText(textView, value, increment);
-            }
-        });
-
-        decreaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (value.get() >= increment) {
-                    decreaseValueAndSetText(textView, value, increment);
-                }
-            }
-        });
-    }
-
-    private void increaseValueAndSetText(TextView textView, AtomicInteger value, int increment) {
-        value.addAndGet(increment);
-        textView.setText(String.valueOf(value));
-    }
-
-    private void decreaseValueAndSetText(TextView textView, AtomicInteger value, int increment) {
-        value.addAndGet(-increment);
-        textView.setText(String.valueOf(value));
-    }
-*/
+    /**
+     * Shows an input dialog for adding a new item to the spinner.
+     *
+     * @param adapter The adapter associated with the spinner.
+     * @param spinner The spinner to which the new item will be added.
+     */
     private void showInputDialog(final ArrayAdapter<String> adapter, final Spinner spinner) {
         final EditText inputText = new EditText(this);
         inputText.setHint("Wprowadź nazwę");
@@ -354,7 +218,12 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton("Anuluj", null)
                 .show();
     }
-
+    /**
+     * Deletes the selected item from the spinner.
+     *
+     * @param adapter The adapter associated with the spinner.
+     * @param spinner The spinner from which the selected item will be deleted.
+     */
     private void deleteSelectedItem(final ArrayAdapter<String> adapter, final Spinner spinner) {
         int selectedPosition = spinner.getSelectedItemPosition();
         if (selectedPosition != Spinner.INVALID_POSITION) {
@@ -367,7 +236,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
+    /**
+     * Sets up the finish button to close the activity.
+     */
     private void setupFinishButton() {
         Button koniecButton = findViewById(R.id.koniecButton);
 

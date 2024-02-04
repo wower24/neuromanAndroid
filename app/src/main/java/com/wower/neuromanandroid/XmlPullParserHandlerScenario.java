@@ -9,20 +9,68 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the parsing of XML data for scenarios in the application.
+ * Constructs the scenario structure, including boards, elements, and states from XML input.
+ */
 public class XmlPullParserHandlerScenario {
+    /**
+     * Holds the entire scenario being constructed from the XML.
+     */
     Scenario scenario;
+    /**
+     * A list to accumulate 'Board' objects as they are parsed from the XML.
+     */
     List<Board> boards = new ArrayList<>();
+    /**
+     * Temporary variable to hold the current 'Board' object being parsed.
+     */
     Board board;
+
+    /**
+     * A list to accumulate 'Element' objects as they are parsed within a 'Board'.
+     */
     List<Element> elements = new ArrayList<>();
+    /**
+     * Temporary variable to hold the current 'Element' object being parsed.
+     */
     Element element;
+    /**
+     * A list to accumulate 'ElementState' objects as they are parsed within an 'Element'.
+     */
     List<ElementState> states = new ArrayList<>();
+
+    /**
+     * Temporary variable to hold the current 'ElementState' object being parsed.
+     */
     ElementState state;
+    /**
+     * A list to accumulate 'ElementAction' objects as they are parsed within an 'ElementState'.
+     */
     List<ElementAction> actions = new ArrayList<>();
+    /**
+     * Temporary variable to hold the current 'ElementAction' object being parsed.
+     */
     ElementAction action;
+    /**
+     * Variable to hold text content parsed from the XML.
+     */
     String text;
+    /**
+     * Temporary variable to hold an 'Evaluate' object as it is parsed.
+     */
     Evaluate evaluate;
+    /**
+     * Temporary variable to hold a 'Condition' object as it is parsed.
+     */
     Condition condition;
 
+    /**
+     * Parses the input stream of XML data to construct a scenario structure.
+     *
+     * @param inputStream The input stream of XML data.
+     * @return The constructed Scenario object.
+     */
     public Scenario parse(InputStream inputStream) {
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -104,7 +152,7 @@ public class XmlPullParserHandlerScenario {
                             } else if(action != null && action.getElementID() == null) {
                                 action.setElementID(text);
                             } else if(condition != null && condition.getElementID().equals("ready")) {
-                                    condition.setElementID(text);
+                                condition.setElementID(text);
                             }
                         } else if(tagName.equalsIgnoreCase("stateID")) {
                             if(state != null && state.getStateID() == null) {
@@ -151,6 +199,13 @@ public class XmlPullParserHandlerScenario {
         return scenario;
     }
 
+    /**
+     * Transforms the source string to conform to a specific format.
+     * This method is used to standardize the source strings for elements in the XML.
+     *
+     * @param source The original source string.
+     * @return The transformed source string.
+     */
     String transformSourceString(String source) {
         source = source.toLowerCase();
         source = source.replaceFirst("img:file=", "");

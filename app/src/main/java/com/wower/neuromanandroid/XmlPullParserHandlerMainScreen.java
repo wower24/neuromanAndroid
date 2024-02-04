@@ -10,13 +10,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * Handles the parsing of XML data for the Main Screen of the application.
+ * This class is responsible for loading initial data such as the list of operator names.
+ */
 public class XmlPullParserHandlerMainScreen {
+    /**
+     * List to store operator names extracted from the XML.
+     */
     List<String> operatorNames = new ArrayList<>();
-    //List<Profile> profiles = new ArrayList<>();
-    //Profile profile;
+    /**
+     * String to hold text content parsed from the XML.
+     */
     String text;
-
+    /**
+     * Parses the input stream of XML data and extracts necessary information.
+     * Specifically, it extracts operator names to be displayed on the main screen.
+     *
+     * @param inputStream The input stream of XML data.
+     * @return A Map containing the list of operator names.
+     */
     public Map<String, List<?>> parse(InputStream inputStream) {
 
         try {
@@ -32,38 +45,13 @@ public class XmlPullParserHandlerMainScreen {
                 String tagName = parser.getName();
 
                 switch(eventType) {
-                    /*
-                    case XmlPullParser.START_TAG:
-                        if (tagName.equalsIgnoreCase("profile")) {
-                            profile = new Profile();
-                        }
-                        break;*/
-
                     case XmlPullParser.TEXT:
                         text = parser.getText();
                         break;
                     case XmlPullParser.END_TAG:
                         if (tagName.equalsIgnoreCase("operator")) {
                             operatorNames.add(text);
-                        } /*else if (tagName.equalsIgnoreCase("profile")) {
-                            profiles.add(profile);
-                        } else if (tagName.equalsIgnoreCase("duration")) {
-                            profile.setDuration(Integer.parseInt(text));
-                        } else if (tagName.equalsIgnoreCase("maxx")) {
-                            profile.setMaxX(Integer.parseInt(text));
-                        } else if (tagName.equalsIgnoreCase("maxy")) {
-                            profile.setMaxY(Integer.parseInt(text));
-                        } else if (tagName.equalsIgnoreCase("minx")) {
-                            profile.setMinX(Integer.parseInt(text));
-                        } else if (tagName.equalsIgnoreCase("miny")) {
-                            profile.setMinY(Integer.parseInt(text));
-                        } else if (tagName.equalsIgnoreCase("name")) {
-                            profile.setName(text);
-                        } else if (tagName.equalsIgnoreCase("patience")) {
-                            profile.setPatience(Integer.parseInt(text));
-                        } else if (tagName.equalsIgnoreCase("radius")) {
-                            profile.setRadius(Integer.parseInt(text));
-                        }*/
+                        }
                         break;
                     default:
                         break;
@@ -76,7 +64,6 @@ public class XmlPullParserHandlerMainScreen {
 
         Map<String, List<?>> result =  new HashMap<>();
         result.put("operatorNames", operatorNames);
-        //result.put("profiles", profiles);
 
         return result;
     }

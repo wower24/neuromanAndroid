@@ -26,42 +26,92 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
+/**
+ * Custom view for displaying and interacting with the game board.
+ */
 public class BoardView extends View {
+    /**
+     * Scenario being displayed in the view.
+     */
     private Scenario scenario;
+    /**
+     * Context of the application.
+     */
     private Context context;
+    /**
+     * Name of the patient.
+     */
     private String patient;
+    /**
+     * Scaling factors for the drawing.
+     */
     private float scaleX;
     private float scaleY;
+    /**
+     * Paint object for drawing elements.
+     */
     private Paint paint = new Paint();
-
+    /**
+     * Cache for drawable resources to optimize performance.
+     */
     private Map<String, Drawable> drawableCache = new HashMap<>();
+    /**
+     * StringBuilder for building XML content.
+     */
     StringBuilder xmlBuilder = new StringBuilder();
-
+    /**
+     * Interface for scenario completion callbacks.
+     */
     public interface BoardViewListener {
         void onScenarioCompleted();
     }
-
+    /**
+     * Listener for scenario completion events.
+     */
     private BoardViewListener listener;
-
-    public BoardView(Context context, @Nullable AttributeSet attrs) {
+    /**
+     * Constructor for the BoardView class.
+     * Initializes the view with the specified context and attribute set.
+     *
+     * @param context The context of the application.
+     * @param attrs A collection of attributes.
+     */
+    public BoardView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
     }
-
+    /**
+     * Sets the listener for board view events.
+     *
+     * @param listener The listener to set for board view events.
+     */
     public void setBoardViewListener(BoardViewListener listener) {
         this.listener = listener;
     }
-
+    /**
+     * Sets the scenario for the board view.
+     * Invalidates the view to trigger a redraw with the new scenario.
+     *
+     * @param scenario The scenario to be set for the board view.
+     */
     public void setScenario(Scenario scenario) {
         this.scenario = scenario;
         invalidate();
     }
-
+    /**
+     * Sets the patient's name for the board view.
+     *
+     * @param patient The name of the patient.
+     */
     public void setPatient(String patient) {
         this.patient = patient;
     }
-
+    /**
+     * Called when the view should render its content.
+     * This is where the board and its elements are drawn.
+     *
+     * @param canvas The canvas on which the view will draw.
+     */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -73,7 +123,11 @@ public class BoardView extends View {
             drawBoard(scenario.getCurrentBoard(), canvas);
         }
     }
-
+    /**
+     * Draws the specified board on the canvas.
+     * @param board The board to draw.
+     * @param canvas The canvas on which to draw the board.
+     */
     private void drawBoard(Board board, Canvas canvas) {
         for (Element element : board.getElement()) {
             //Log.d("ELEMENT ID", "Drawing: " +  element.getElementID());
@@ -86,7 +140,11 @@ public class BoardView extends View {
             }
         }
     }
-
+    /**
+     * Draws the specified state of an element on the canvas.
+     * @param state The state of the element to draw.
+     * @param canvas The canvas on which to draw the state.
+     */
     private void drawState(ElementState state, Canvas canvas) {
         int x = state.getLocX();
         int y =state.getLocY();
@@ -156,7 +214,11 @@ public class BoardView extends View {
             }
         }
     }
-
+    /**
+     * Parses a color string and returns the corresponding color value.
+     * @param colorString The string representing the color.
+     * @return The parsed color value.
+     */
     public static int parseColorString(String colorString) {
         // Split the string into RGB components
         String[] rgb = colorString.split(",");
@@ -169,7 +231,15 @@ public class BoardView extends View {
         // Return the color created from these components
         return Color.rgb(r, g, b);
     }
-
+    /**
+     * Handles touch screen motion events.
+     * This method is responsible for handling user interactions with the board. It detects where
+     * the user has touched the board and performs actions based on the state and type of elements
+     * at that position.
+     *
+     * @param event The motion event.
+     * @return True if the event was handled, false otherwise.
+     */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -198,25 +268,25 @@ public class BoardView extends View {
                         return true;
                     }
 
-                    }
+                }
 
-                    if(board.isActive()) {
-                        if ((isInsideElement(x, y, state) && element.getState().size() > 1)
-                                || element.getCurrentState().getAutoCLick() == 1) {
-                            if((board.getName().equals("03_łączenie") && elementID.contains("koło")) || (!elementID.equals("kwadrat") && !elementID.contains("pole")
-                                    && !elementID.endsWith("ścianka") && !elementID.endsWith("scianka"))) {
-                                board.getClickedElements().add(element);
-                            }
-
-                            changeStates(board, element);
+                if(board.isActive()) {
+                    if ((isInsideElement(x, y, state) && element.getState().size() > 1)
+                            || element.getCurrentState().getAutoCLick() == 1) {
+                        if((board.getName().equals("03_łączenie") && elementID.contains("koło")) || (!elementID.equals("kwadrat") && !elementID.contains("pole")
+                                && !elementID.endsWith("ścianka") && !elementID.endsWith("scianka"))) {
+                            board.getClickedElements().add(element);
                         }
-                    }
 
-                    if(element.getElementID().equals("przycisk_gotów_nieaktywny") && isInsideElement(x, y, state)) {
                         changeStates(board, element);
-                        updateElement(board.getElementByID("przycisk_gotów_aktywny"));
-                        board.setActive(true);
                     }
+                }
+
+                if(element.getElementID().equals("przycisk_gotów_nieaktywny") && isInsideElement(x, y, state)) {
+                    changeStates(board, element);
+                    updateElement(board.getElementByID("przycisk_gotów_aktywny"));
+                    board.setActive(true);
+                }
 
                 if (element.getElementID().equals("przycisk_reset") && isInsideElement(x, y, state)) {
                     scenario.getCurrentBoard().resetBoard();
@@ -237,31 +307,39 @@ public class BoardView extends View {
         }
         return true;
     }
-
+    /**
+     * Changes the states of elements based on the specified action.
+     * @param currentBoard The current board being interacted with.
+     * @param currentElement The element on which the action occurred.
+     */
     private void changeStates(Board currentBoard, Element currentElement) {
         ElementState state = currentElement.getCurrentState();
-            for (ElementAction action : state.getActions()) {
-                if(action.getElementID().equals(":-1") && action.getStateID().equals(":line")
-                        && currentBoard.getClickedElements().size()>0) {
-                    int lastClickedIndex = currentBoard.getClickedElements().size() - 2;
-                    ElementState lastClickedState = currentBoard.getClickedElements().get(lastClickedIndex).getCurrentState();
-                    int centerXLastClicked = lastClickedState.getLocX() + lastClickedState.getWidth() / 2;
-                    int centerYLastClicked = lastClickedState.getLocY() + lastClickedState.getHeight() / 2;
-                    int centerXCurrent = state.getLocX() + state.getWidth() / 2;
-                    int centerYCurrent = state.getLocY() + state.getHeight() / 2;
+        for (ElementAction action : state.getActions()) {
+            if(action.getElementID().equals(":-1") && action.getStateID().equals(":line")
+                    && currentBoard.getClickedElements().size()>0) {
+                int lastClickedIndex = currentBoard.getClickedElements().size() - 2;
+                ElementState lastClickedState = currentBoard.getClickedElements().get(lastClickedIndex).getCurrentState();
+                int centerXLastClicked = lastClickedState.getLocX() + lastClickedState.getWidth() / 2;
+                int centerYLastClicked = lastClickedState.getLocY() + lastClickedState.getHeight() / 2;
+                int centerXCurrent = state.getLocX() + state.getWidth() / 2;
+                int centerYCurrent = state.getLocY() + state.getHeight() / 2;
 
-                    Element line = addLineElement(centerXLastClicked, centerYLastClicked, centerXCurrent, centerYCurrent);
-                        currentBoard.getElementsToAdd().add(0, line);
+                Element line = addLineElement(centerXLastClicked, centerYLastClicked, centerXCurrent, centerYCurrent);
+                currentBoard.getElementsToAdd().add(0, line);
 
-                } else {
-                    Element element = currentBoard.getElementByID(action.getElementID());
-                    if(element != null) {
-                        element.setCurrentStateID(action.getStateID());
-                        updateElement(element);
-                    }
+            } else {
+                Element element = currentBoard.getElementByID(action.getElementID());
+                if(element != null) {
+                    element.setCurrentStateID(action.getStateID());
+                    updateElement(element);
                 }
             }
+        }
     }
+    /**
+     * Updates the specified element's appearance.
+     * @param element The element to update.
+     */
     private void updateElement(Element element) {
         ElementState currentState = element.getCurrentState();
         int locX = (int) (currentState.getLocX() * scaleX);
@@ -271,7 +349,9 @@ public class BoardView extends View {
 
         invalidate(locX, locY, locX + width, locY + height);
     }
-
+    /**
+     * Checks if the current scenario is completed.
+     */
     private void checkCompletion() {
         if(scenario.getName().equals("test9p")) {
             for (Element element : scenario.getCurrentBoard().getElement()) {
@@ -287,7 +367,13 @@ public class BoardView extends View {
             listener.onScenarioCompleted();
         }
     }
-
+    /**
+     * Determines if the specified coordinates are inside the given element state.
+     * @param x The x-coordinate of the touch event.
+     * @param y The y-coordinate of the touch event.
+     * @param state The state of the element to check against.
+     * @return True if the coordinates are inside the element state, false otherwise.
+     */
     private boolean isInsideElement(int x, int y, ElementState state) {
         int scaledX = state.getLocX();
         int scaledY = state.getLocY();
@@ -311,7 +397,10 @@ public class BoardView extends View {
             return x >= scaledX && x <= (scaledX + scaledWidth) && y >= scaledY && y <= (scaledY + scaledHeight);
         }
     }
-
+    /**
+     * Calculates the scaling factors based on the frame element.
+     * @param frame The frame element to use for calculations.
+     */
     private void calculateScalingFactors(Element frame) {
         int frameWidth = frame.getState().get(0).getWidth();
         int frameHeight = frame.getState().get(0).getHeight();
@@ -322,7 +411,9 @@ public class BoardView extends View {
         scaleX = (float) viewWidth / frameWidth;
         scaleY = (float) viewHeight / frameHeight;
     }
-
+    /**
+     * Advances to the next board in the scenario.
+     */
     public void goToNextBoard() {
         String boardStateXml = serializeBoardState(scenario.getCurrentBoard());
         scenario.getCurrentBoard().getClickedElements().clear();
@@ -334,7 +425,11 @@ public class BoardView extends View {
             listener.onScenarioCompleted();
         }
     }
-
+    /**
+     * Retrieves a drawable from the cache or loads it if not present.
+     * @param filename The filename of the drawable to retrieve.
+     * @return The drawable object.
+     */
     private Drawable getDrawable(String filename) {
         if (!drawableCache.containsKey(filename)) {
             int resId = getResources().getIdentifier(filename, "drawable", getContext().getPackageName());
@@ -343,7 +438,14 @@ public class BoardView extends View {
         }
         return drawableCache.get(filename);
     }
-
+    /**
+     * Adds a line element to the board.
+     * @param centerXFrom The x-coordinate of the start of the line.
+     * @param centerYFrom The y-coordinate of the start of the line.
+     * @param centerXTo The x-coordinate of the end of the line.
+     * @param centerYTo The y-coordinate of the end of the line.
+     * @return The new line element.
+     */
     Element addLineElement(int centerXFrom, int centerYFrom, int centerXTo, int centerYTo) {
         // Apply scaling to the coordinates
         int scaledCenterXFrom = (int) (centerXFrom * scaleX);
@@ -358,7 +460,11 @@ public class BoardView extends View {
         line.setCurrentStateID("line");
         return line;
     }
-
+    /**
+     * Serializes the state of the specified board into XML format.
+     * @param board The board to serialize.
+     * @return The XML string representation of the board state.
+     */
     private String serializeBoardState(Board board) {
         if(xmlBuilder.length() == 0) {
             xmlBuilder.append("<test>\n");
@@ -386,7 +492,11 @@ public class BoardView extends View {
         }
         return xmlBuilder.toString();
     }
-
+    /**
+     * Saves the board state to a file.
+     * @param boardStateXml The XML string representation of the board state.
+     * @param fileName The name of the file to save to.
+     */
     private void saveBoardStateToFile(String boardStateXml, String fileName) {
         try {
             // Append closing tag to the XML content

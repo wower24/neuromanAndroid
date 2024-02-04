@@ -7,9 +7,17 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+/**
+ * Tests the Board class's methods to ensure correct functionality.
+ */
 public class BoardUnitTest {
+    /**
+     * Board object for testing.
+     */
     Board board = new Board();
+    /**
+     * Tests the isCorrect() method to verify correct behavior under various conditions.
+     */
     @Test
     public void testIsCorrect() {
         Evaluate evaluate = new Evaluate();
@@ -25,7 +33,9 @@ public class BoardUnitTest {
         required.add(new Condition("someElement"));
         assertFalse(board.isCorrect());
     }
-
+    /**
+     * Tests the listsEqual() method for comparing elements and conditions lists for equality.
+     */
     @Test
     public void testListsEqual() {
         List<Element> elements = Arrays.asList(new Element("element1"), new Element("element2"));
@@ -41,7 +51,9 @@ public class BoardUnitTest {
         conditions.add(new Condition("differentElement"));
         assertFalse(board.listsEqual(elements, conditions));
     }
-
+    /**
+     * Tests the containsAllConditions() method to check if clicked elements meet all required conditions.
+     */
     @Test
     public void testContainsAllConditions() {
         List<Element> clickedElements = new ArrayList<>();

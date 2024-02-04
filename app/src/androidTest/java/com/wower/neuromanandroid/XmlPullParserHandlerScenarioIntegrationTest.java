@@ -10,7 +10,16 @@ import org.junit.Test;
 
 import java.io.InputStream;
 
+
+/**
+ * Tests the functionality of the XmlPullParserHandlerScenario by parsing predefined XML files.
+ */
 public class XmlPullParserHandlerScenarioIntegrationTest {
+    /**
+     * Tests parsing of a non-empty scenario XML file.
+     * Validates if the parsed scenario matches the expected structure and content.
+     * @throws Exception if there is an issue reading the XML file or parsing the content.
+     */
     @Test
     public void testScenarioParsing() throws Exception {
         // Arrange
@@ -75,7 +84,11 @@ public class XmlPullParserHandlerScenarioIntegrationTest {
 
         assertEquals(0, state2.getActions().size());
     }
-
+    /**
+     * Tests parsing of an empty scenario XML file.
+     * Verifies that the parser correctly identifies the scenario as having no boards.
+     * @throws Exception if there is an issue reading the XML file or parsing the content.
+     */
     @Test
     public void testEmptyScenarioParsing() throws Exception {
         InputStream is = InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("empty_scenario.xml");
